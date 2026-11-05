@@ -40,6 +40,11 @@ test('DM-005/LS-001: favorites stay child-scoped and profile removal clears them
   await page.getByRole('link', { name: /Social\/Emotional/ }).click();
   await page.getByRole('link', { name: 'Knows familiar people', exact: true }).click();
   await page.getByRole('button', { name: 'Save behavior to Saved', exact: true }).click();
+  await page.getByRole('link', { name: 'Search', exact: true }).click();
+  await page.getByRole('link', { name: 'Fictional shared activity', exact: true }).click();
+  await page.getByRole('button', { name: 'Log practice', exact: true }).click();
+  await page.getByLabel('Notes (optional)', { exact: true }).fill('Delete this with the profile.');
+  await page.getByRole('button', { name: 'Save practice', exact: true }).click();
 
   await page.goto('/#/profiles');
   await page.getByLabel('Display label (optional)', { exact: true }).fill('Second child');
@@ -60,21 +65,22 @@ test('DM-005/LS-001: favorites stay child-scoped and profile removal clears them
   await expect(page.getByText(/saved items, and practice history/)).toBeVisible();
   await page.getByRole('button', { name: 'Remove profile from this browser', exact: true }).click();
   await expect(page.getByLabel('Selected child').locator('option', { hasText: 'First child' })).toHaveCount(0);
-  const favoriteCount = await page.evaluate(async () => {
+  const personalRecordCounts = await page.evaluate(async () => {
     const database = await new Promise((resolve, reject) => {
       const request = indexedDB.open('milestone-guide-profiles:local-demo', 2);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
-    const count = await new Promise((resolve, reject) => {
-      const request = database.transaction('favorites').objectStore('favorites').count();
+    const tx = database.transaction(['favorites', 'practice']);
+    const counts = await Promise.all(['favorites', 'practice'].map(store => new Promise((resolve, reject) => {
+      const request = tx.objectStore(store).count();
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
-    });
+    })));
     database.close();
-    return count;
+    return counts;
   });
-  expect(favoriteCount).toBe(0);
+  expect(personalRecordCounts).toEqual([0, 0]);
 });
 
 test('DEC-007/DM-006: a safety-withdrawn favorite stays saved and is labeled Withdrawn', async ({ page }) => {

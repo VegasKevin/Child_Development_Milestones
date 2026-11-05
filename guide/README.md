@@ -27,16 +27,18 @@ Fresh independent review reproduced malformed-record cases, verified the identit
 | C1: source-linked CDC catalog draft | Record all CDC checklist behavior statements, original categories, checkpoint ages, source URLs, page dates, and reuse notes. | Complete as a draft; human editorial review remains pending. |
 | C2: catalog coverage and traceability checks | Validate checkpoint coverage, IDs, source links, category provenance, and content integrity in the routine content check. | Complete. |
 | C3: connect the CDC catalog to the guide | Render source-backed CDC records in the local guide while keeping the pending editorial status clear and authored content separate. | Complete for the local demo; human editorial approval remains pending. |
-| C4: child-specific saved/practice records and backup | Implement favorites and practice history, then versioned encrypted export/restore, under the local-record requirements. | In progress: favorites persist for the selected child, show withdrawal state, and appear in Saved; practice history and backup are not started. |
+| C4: child-specific saved/practice records and backup | Implement favorites and practice history, then versioned encrypted export/restore, under the local-record requirements. | In progress: favorites and practice history are verified complete; encrypted export/restore remain. |
 
 ## Current work checkpoint - 2026-11-05
 
 The active goal is to complete C1 through C4 in order, with a failing end-to-end case, implementation, required checks, fresh independent review, and updated progress evidence for each slice.
 C1 and C2 are verified complete as engineering work, while CDC milestone wording, parent-friendly mappings, explanations, and activities remain pending human editorial approval.
 C3 is verified complete for the local demo after passing the desktop/mobile browser suite and fresh independent review.
-C4 is in progress; its first vertical behavior saves CDC milestone and activity favorites to the selected child and reopens them from a Saved screen.
-The favorites step is verified complete after two fresh reviews; it labels safety-withdrawn and retired references using catalog tombstones, isolates favorites by child, and removes personal records atomically when a profile is deleted.
-Practice history, encrypted backup, and restore are not started.
+C4 is in progress; its favorites and practice-history vertical behaviors are verified complete, and encrypted backup/restore remain.
+The favorites step was verified after two fresh reviews; it labels safety-withdrawn and retired references using catalog tombstones, isolates favorites by child, and removes personal records atomically when a profile is deleted.
+Practice history now records a selected child's dated activity session with optional difficulty and notes, then shows the child's activity-specific history newest first.
+Date-only sessions are supported, records persist after reload, and the UI does not represent practice as a developmental score or completion status.
+Withdrawn activity instructions stay hidden while dated practice entries, ratings and notes remain readable.
 
 C3 first reproduced the expected failure because the normal age-to-category route showed only the fictional catalog.
 The guide now reads all 12 CDC checkpoints, retains the four original categories, displays source statements and direct CDC source/date information, and makes the pending editorial state explicit.
@@ -59,16 +61,25 @@ The E2E suite verifies saving/removing after reload, child isolation, profile-re
 The Saved screenshots were inspected at desktop and phone sizes without visible overflow or clipping.
 The first independent review found the missing Withdrawn label, and the fix passed the targeted desktop/mobile regression and a fresh final review with no remaining material issues.
 
-Files changed across C1 through C3 and current C4 work include `guide/README.md`, `guide/index.html`, `guide/guide.js`, `guide/guide.css`, `guide/profile-store.js`, `src/personal-records.js`, `scripts/serve-guide.mjs`, `package.json`, `src/cdc-catalog-validation.js`, `scripts/check-cdc-catalog.mjs`, `test/cdc-catalog-validation.test.js`, `fixtures/cdc-source-register.json`, `fixtures/cdc-milestones-draft.json`, `e2e/cdc-source-register.spec.js`, `e2e/cdc-guide.spec.js`, `e2e/saved-records.spec.js`, `e2e/guide.spec.js`, `e2e/approximate-age.spec.js`, `e2e/profile-age-review.spec.js`, `e2e/profile-ages.spec.js`, `e2e/profile-management.spec.js`, `e2e/profile-review.spec.js`, and `e2e/profiles.spec.js`.
-There are no known unresolved C3 or C4 favorites-slice code findings.
-Pending decisions or dependencies for later work include the already-documented reviewed encryption format and compatibility fixtures before implementing encrypted backup and restore.
+The first practice-history E2E reproduced the missing Log practice action on an activity detail page.
+The implementation adds a local practice object store and typed record validation, a date-first Log practice form, activity history, and links to activity histories from Saved.
+The record uses the stable activity identity and revision, a local child ID, the session date, and optional difficulty and notes; there is no completion field.
+E2E cases verify default and editable dates, optional fields including a date-only record, newest-first ordering, persistence after reload, child and activity scoping, retention after safety withdrawal, hidden withdrawn instructions, and profile-removal cleanup.
+The focused practice and Saved browser checks passed on desktop and mobile, including the profile-removal transaction check.
+The full desktop/mobile browser suite passed 126/126, `npm.cmd test` passed 48/48, `npm.cmd run check` passed both catalog checks, and `git diff --check` passed.
+The first fresh review identified missing direct coverage for child/activity scoping; a dedicated E2E case was added and passed on desktop and mobile.
+The final fresh review confirmed the scope coverage and found no remaining material findings.
+
+Files changed in the completed practice-history slice are `guide/guide.js`, `guide/guide.css`, `src/personal-records.js`, `e2e/practice-records.spec.js`, `e2e/saved-records.spec.js`, and this checkpoint in `guide/README.md`.
+The C4 favorites and practice-history sub-slices have no known unresolved implementation findings.
+The remaining C4 slice is encrypted backup and restore, with the password requirement recorded in DEC-008; the concrete encrypted format and compatibility fixtures must be specified and tested before implementation.
 
 Key decisions are to use original CDC categories, avoid unreviewed explanations or activities, preserve the loopback no-connect policy, and keep fictional Search content visibly identified.
 Favorites use opaque stable content IDs plus the saved display label and are unique per child, content type, and content ID.
 Profile removal must delete that child's favorites and practice entries in the same IndexedDB transaction so it cannot leave dangling personal records.
-The Saved screen follows the supplied behavior-list reference, existing palette, compact editorial rows, and single-column phone layout.
-The latest verification passed `npx.cmd playwright test` at 120/120 desktop/mobile cases, `npm.cmd test` at 48/48, `npm.cmd run check` through both the synthetic and CDC stages, and `git diff --check`.
-The exact next step is to begin the separate practice-history behavior with a failing E2E case, then specify and implement LS-003/LS-004 encrypted backup and restore.
+The Saved screen and practice form follow the supplied behavior-list and Log practice references, existing palette, compact editorial rows, and single-column phone layout.
+The latest verification passed `npx.cmd playwright test` at 126/126 desktop/mobile cases, `npm.cmd test` at 48/48, `npm.cmd run check` through both the synthetic and CDC stages, and `git diff --check`.
+The exact next step is to read FR-009/FR-010, DEC-008, and Flow P8, then write a failing E2E case for password-protected, versioned backup export and validated restore before selecting the encrypted format and compatibility fixtures.
 
 ## FR-001 local profile goal
 

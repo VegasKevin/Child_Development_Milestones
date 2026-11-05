@@ -31,6 +31,10 @@ let preview = false;
 let savedFavorites = [];
 let savedChildId = null;
 let savedLoadError = false;
+let practiceState = { key: null, loading: false, entries: [], error: false };
+let practiceDraft = null;
+let practiceFormError = '';
+let practiceNotice = '';
 const records = personalRecords('local-demo');
 async function reloadSaved(childId) {
   savedChildId = childId ?? null;
@@ -39,6 +43,35 @@ async function reloadSaved(childId) {
   if (!savedChildId) return;
   try { savedFavorites = await records.loadFavorites(savedChildId); }
   catch { savedLoadError = true; }
+}
+function practiceKey(childId, activityId) { return childId ? `${childId}|${activityId ?? '*'}` : 'no-child'; }
+function sortPractice(entries) {
+  return entries.slice().sort((a, b) => b.practiceDate.localeCompare(a.practiceDate) || a.id.localeCompare(b.id));
+}
+function ensurePractice(childId, activityId = null) {
+  const key = practiceKey(childId, activityId);
+  if (practiceState.key === key) return;
+  practiceState = { key, loading: Boolean(childId), entries: [], error: false };
+  if (!childId) return;
+  records.loadPractice(childId, activityId ?? undefined).then(entries => {
+    if (practiceState.key !== key) return;
+    practiceState = { key, loading: false, entries: sortPractice(entries), error: false };
+    render();
+  }).catch(() => {
+    if (practiceState.key !== key) return;
+    practiceState = { key, loading: false, entries: [], error: true };
+    render();
+  });
+}
+async function refreshPractice(childId, activityId = null) {
+  const key = practiceKey(childId, activityId);
+  practiceState = { key, loading: true, entries: [], error: false };
+  try {
+    const entries = await records.loadPractice(childId, activityId ?? undefined);
+    if (practiceState.key === key) practiceState = { key, loading: false, entries: sortPractice(entries), error: false };
+  } catch {
+    if (practiceState.key === key) practiceState = { key, loading: false, entries: [], error: true };
+  }
 }
 const profiles = localProfiles(async (goHome = true, resetAge = true) => {
   if (resetAge) { age = null; preview = false; }
@@ -132,9 +165,21 @@ function savedScreen() {
       ${href ? `<a href="${href}" data-open-favorite data-checkpoint-age="${age}"><strong>${escape(item.label)}</strong><span>${escape(contextLabel)}</span></a>` : `<span><strong>${escape(item.label)}</strong><span>${escape(contextLabel)}</span></span>`}
       <button class="clear-button" data-remove-favorite="${escape(item.type)}" data-content-id="${escape(item.contentId)}">Remove</button></li>`;
   });
+  const historyActivityIds = [...new Set(practiceState.entries.map(entry => entry.activityId))];
+  const historyLinks = historyActivityIds.map(activityId => {
+    const activity = catalog.activities.find(item => item.id === activityId);
+    const entry = practiceState.entries.find(item => item.activityId === activityId);
+    const tombstone = catalog.retired?.find(item => item.type === 'activity' && item.id === activityId);
+    const title = activity?.title ?? tombstone?.label ?? entry.activityTitle;
+    const state = tombstone?.disposition === 'withdrawn' ? 'Withdrawn. History remains available.'
+      : tombstone ? 'Retired. History remains available.' : activity ? 'Practice history' : 'Unavailable activity. History remains available.';
+    return `<li class="saved-row"><a href="#/history/activity/${encodeURIComponent(activityId)}"><strong>${escape(title)}</strong><span>${escape(state)}</span></a></li>`;
+  });
   return `${heading(`Saved for ${profile.label}`)}<p class="lead">Only this child's saved behaviors and activities appear here.</p>
     ${savedLoadError ? '<p role="alert">Saved items could not be loaded. Existing records have not changed. Reload this page to try again.</p>' : '<p class="local-data-note">Saved in this browser. Clearing site data can remove them.</p>'}
-    ${entries.length ? `<ul class="saved-list" aria-label="Saved behaviors and activities">${entries.join('')}</ul>` : '<section class="empty-saved"><h2>Nothing saved yet.</h2><p>Save a behavior or activity to return to it here.</p><a href="#/">Browse milestones</a></section>'}`;
+    ${practiceState.error ? '<p role="alert">Practice history could not be loaded. Existing records have not changed.</p>' : ''}
+    ${entries.length ? `<ul class="saved-list" aria-label="Saved behaviors and activities">${entries.join('')}</ul>` : '<section class="empty-saved"><h2>Nothing saved yet.</h2><p>Save a behavior or activity to return to it here.</p><a href="#/">Browse milestones</a></section>'}
+    ${historyLinks.length ? `<section class="practice-history-links"><h2>Activity history</h2><ul class="saved-list" aria-label="Activity practice histories">${historyLinks.join('')}</ul></section>` : ''}`;
 }
 
 function suitabilityLabel(activity) {
@@ -255,6 +300,13 @@ function milestoneScreen(milestone, checkpoint) {
 }
 
 function activityScreen(activity, milestone, checkpoint) {
+  const profile = profiles.selected();
+  const entries = practiceState.entries.filter(entry => entry.activityId === activity.id);
+  const historyContent = !profile ? '<p>Select a child profile to log or view practice history.</p>'
+    : practiceState.loading ? '<p role="status">Loading practice history.</p>'
+      : practiceState.error ? '<p role="alert">Practice history could not be loaded. Existing records have not changed.</p>'
+        : entries.length ? `<ol class="practice-list">${entries.map(practiceRow).join('')}</ol><a href="#/history/activity/${encodeURIComponent(activity.id)}">View full practice history</a>`
+          : '<p>No practice sessions are logged for this child.</p>';
   return `${milestone ? back(`#/milestone/${encodeURIComponent(milestone.id)}`, 'Back to behavior') + contextBar(checkpoint) : back('#/library', 'Back to activity library')}
     <div class="activity-heading"><p class="content-label">Activity</p>${heading(activity.title)}
       ${milestone ? `<p>Linked to ${escape(milestone.sourceStatement)}</p>` : ''}<p>Listed for: ${escape(suitabilityLabel(activity))}</p>
@@ -262,7 +314,50 @@ function activityScreen(activity, milestone, checkpoint) {
     <section class="activity-section"><h2>Materials</h2>${activity.materials.length ? `<ul>${activity.materials.map(item => `<li>${escape(item)}</li>`).join('')}</ul>` : '<p>No materials listed.</p>'}</section>
     <section class="activity-section"><h2>Steps</h2><ol class="steps">${activity.instructions.map(item => `<li>${escape(item)}</li>`).join('')}</ol></section>
     <section class="safety"><h2>Safety notes</h2>${activity.safetyWarnings.length ? `<ul>${activity.safetyWarnings.map(warning => `<li>${escape(warning)}</li>`).join('')}</ul>` : '<p>No safety warnings listed in this fictional demo.</p>'}</section>
-    ${favoriteControl('activity', activity.id, activity.title)}${sourceDetails(activity.sourceIds)}`;
+    ${favoriteControl('activity', activity.id, activity.title)}
+    ${profile ? `<button class="primary log-practice-button" data-log-practice data-activity-id="${escape(activity.id)}">Log practice</button>` : '<p class="save-profile-note">Create or select a child profile to log practice.</p>'}
+    ${practiceNotice ? `<p class="practice-saved" role="status">${escape(practiceNotice)}</p>` : ''}
+    <section class="practice-history"><h2>Practice history</h2><p class="local-data-note">Practice sessions are saved locally in this browser.</p>${historyContent}</section>${sourceDetails(activity.sourceIds)}`;
+}
+
+function practiceRow(entry) {
+  return `<li><time datetime="${escape(entry.practiceDate)}">${escape(entry.practiceDate)}</time>
+    ${entry.difficulty ? `<span>Difficulty: ${escape(entry.difficulty)}</span>` : ''}
+    ${entry.notes ? `<p>${escape(entry.notes)}</p>` : ''}</li>`;
+}
+
+function logPracticeScreen(activity) {
+  const profile = profiles.selected();
+  if (!profile) return `${back(`#/library/activity/${encodeURIComponent(activity.id)}`, 'Back to activity')}${heading('Log practice')}<p>Create or select a child profile before saving a practice session.</p><a href="#/profiles">Manage local profiles</a>`;
+  if (!practiceDraft || practiceDraft.activityId !== activity.id) {
+    practiceDraft = { activityId: activity.id, practiceDate: today(), difficulty: '', notes: '' };
+    practiceFormError = '';
+  }
+  return `${back(`#/library/activity/${encodeURIComponent(activity.id)}`, 'Back to activity')}${heading('Log practice')}
+    <p class="lead">${escape(activity.title)}</p><p>For ${escape(profile.label)}. A practice session is a parent record, not a developmental score.</p>
+    <form id="practice-form" class="practice-form" novalidate>
+      <label for="practice-date">Practice date</label><input id="practice-date" type="date" value="${escape(practiceDraft.practiceDate)}" required>
+      <label for="practice-difficulty">Difficulty (optional)</label><select id="practice-difficulty"><option value="">Not recorded</option><option ${practiceDraft.difficulty === 'Easy' ? 'selected' : ''}>Easy</option><option ${practiceDraft.difficulty === 'Moderate' ? 'selected' : ''}>Moderate</option><option ${practiceDraft.difficulty === 'Difficult' ? 'selected' : ''}>Difficult</option></select>
+      <label for="practice-notes">Notes (optional)</label><textarea id="practice-notes" maxlength="4000" rows="4">${escape(practiceDraft.notes)}</textarea>
+      <p class="form-error" id="practice-error" role="alert">${escape(practiceFormError)}</p><button class="primary" type="submit">Save practice</button>
+    </form>`;
+}
+
+function practiceHistoryScreen(activityId) {
+  const profile = profiles.selected();
+  if (!profile) return `${back('#/saved', 'Back to Saved')}${heading('Practice history')}<p>Select a child profile to view local history.</p>`;
+  const activity = catalog.activities.find(item => item.id === activityId);
+  const tombstone = catalog.retired?.find(item => item.type === 'activity' && item.id === activityId);
+  const matching = practiceState.entries.filter(item => item.activityId === activityId);
+  const title = activity?.title ?? tombstone?.label ?? matching[0]?.activityTitle ?? 'Unavailable activity';
+  const status = tombstone?.disposition === 'withdrawn' ? '<p class="withdrawn-note">This activity was withdrawn. Its practice history remains available; its instructions are hidden.</p>'
+    : tombstone ? '<p>This activity is retired. Its practice history remains available.</p>' : '';
+  const backLink = activity ? `#/library/activity/${encodeURIComponent(activityId)}` : '#/saved';
+  if (practiceState.loading) return `${back(backLink, 'Back')} ${heading('Practice history')}<p role="status">Loading practice history.</p>`;
+  if (practiceState.error) return `${back(backLink, 'Back')} ${heading('Practice history')}<p role="alert">Practice history could not be loaded. Existing records have not changed.</p>`;
+  return `${back(backLink, 'Back')} ${heading('Practice history: ' + title)}${status}
+    <p class="local-data-note">History for ${escape(profile.label)}. Notes are stored in this browser.</p>
+    ${matching.length ? `<ol class="practice-list">${matching.map(practiceRow).join('')}</ol>` : '<p>No practice sessions are logged for this child.</p>'}`;
 }
 
 function unavailable() {
@@ -314,15 +409,75 @@ function bindFavorites() {
   }));
 }
 
+function bindPractice() {
+  document.querySelector('[data-log-practice]')?.addEventListener('click', () => {
+    const activityId = document.querySelector('[data-log-practice]').dataset.activityId;
+    practiceDraft = { activityId, practiceDate: today(), difficulty: '', notes: '' };
+    practiceFormError = '';
+    practiceNotice = '';
+    location.hash = `#/log/activity/${encodeURIComponent(activityId)}`;
+  });
+  document.querySelector('#practice-form')?.addEventListener('input', () => {
+    practiceDraft = { ...practiceDraft,
+      practiceDate: document.querySelector('#practice-date').value,
+      difficulty: document.querySelector('#practice-difficulty').value,
+      notes: document.querySelector('#practice-notes').value };
+  });
+  document.querySelector('#practice-form')?.addEventListener('submit', async event => {
+    event.preventDefault();
+    const profile = profiles.selected();
+    const activity = catalog.activities.find(item => item.id === practiceDraft?.activityId);
+    const dateInput = document.querySelector('#practice-date');
+    const date = dateInput.value;
+    if (!date || dateInput.validity.badInput || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      practiceFormError = 'Enter a valid practice date.';
+      document.querySelector('#practice-error').textContent = practiceFormError;
+      dateInput.focus();
+      return;
+    }
+    if (!profile || !activity) return;
+    const button = event.submitter;
+    button.disabled = true;
+    const entry = { id: crypto.randomUUID(), childId: profile.id, activityId: activity.id,
+      activityRevision: activity.revision, activityTitle: activity.title, practiceDate: date,
+      ...(practiceDraft.difficulty ? { difficulty: practiceDraft.difficulty } : {}),
+      ...(practiceDraft.notes ? { notes: practiceDraft.notes } : {}) };
+    try {
+      await records.savePractice(entry);
+      practiceDraft = null;
+      practiceFormError = '';
+      practiceNotice = 'Practice saved in this browser.';
+      await refreshPractice(profile.id, activity.id);
+      const route = `#/library/activity/${encodeURIComponent(activity.id)}`;
+      if (location.hash === route) render();
+      else location.hash = route;
+    } catch {
+      practiceFormError = 'Could not save this practice session. Your existing records are unchanged. Your input is still here.';
+      document.querySelector('#practice-error').textContent = practiceFormError;
+      button.disabled = false;
+      button.focus();
+    }
+  });
+}
+
 function render(focusResult = false) {
   const { checkpoint } = context();
   const [type, id, from] = location.hash.slice(1).split('/').filter(Boolean);
+  const activeActivity = type === 'library' && id === 'activity'
+    ? catalog.activities.find(item => item.id === from)
+    : type === 'log' && id === 'activity' ? catalog.activities.find(item => item.id === from) : null;
+  if (type === 'saved' && profiles.selected()) ensurePractice(profiles.selected().id);
+  else if ((activeActivity || type === 'history' && id === 'activity') && profiles.selected()) {
+    ensurePractice(profiles.selected().id, activeActivity?.id ?? from);
+  }
   let content;
   if (!type) content = dashboard();
   else if (type === 'profiles') content = profiles.screen();
   else if (type === 'saved') content = savedScreen();
+  else if (type === 'history' && id === 'activity') content = practiceHistoryScreen(from);
+  else if (type === 'log' && id === 'activity') content = activeActivity ? logPracticeScreen(activeActivity) : unavailable();
   else if (type === 'library') {
-    const activity = id === 'activity' && catalog.activities.find(item => item.id === from);
+    const activity = id === 'activity' && activeActivity;
     content = !id ? libraryScreen() : activity ? activityScreen(activity) : unavailable();
   }
   else if (!checkpoint) content = unavailable();
@@ -343,6 +498,7 @@ function render(focusResult = false) {
     <footer>CDC milestone statements are pending human editorial review. Search activity examples are fictional engineering fixtures. CDC has not reviewed or endorsed this project.</footer>`;
   profiles.bind();
   bindFavorites();
+  bindPractice();
   document.querySelector('#age-form')?.addEventListener('submit', event => {
     event.preventDefault();
     const input = document.querySelector('#age');

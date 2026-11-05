@@ -139,6 +139,20 @@ label { font-weight: bold; display: block; margin-bottom: .5rem; }
 .empty-saved { max-width: 760px; padding: 1.3rem 1.5rem; border-radius: 1rem; background: #e9e7e1; }
 .empty-saved h2 { margin-bottom: .45rem; }
 .empty-saved p { margin-bottom: .5rem; }
+.log-practice-button { margin: 0 0 1.5rem; min-height: 48px; padding: .7rem 1.2rem; background: var(--ink); color: white; }
+.practice-form { display: grid; gap: .55rem; max-width: 620px; padding: 1.4rem; border-left: .4rem solid var(--lilac); border-radius: .8rem; background: white; }
+.practice-form label { font-weight: bold; }
+.practice-form input, .practice-form select, .practice-form textarea { width: 100%; min-width: 0; padding: .7rem .8rem; border: 2px solid #676660; border-radius: .6rem; background: white; color: var(--ink); }
+.practice-form textarea { resize: vertical; }
+.practice-form .primary { margin-top: .4rem; min-height: 48px; }
+.practice-history { max-width: 760px; margin: 1.8rem 0; padding-top: 1.2rem; border-top: 1px solid #d6d4ce; }
+.practice-list { max-width: 760px; padding-left: 1.2rem; }
+.practice-list li { padding: .55rem .8rem; border-left: 4px solid var(--lilac); background: white; }
+.practice-list time { font-weight: bold; }
+.practice-list span { display: block; color: var(--muted); font-size: .95rem; }
+.practice-list p { margin: .35rem 0 0; white-space: pre-wrap; }
+.practice-saved { width: fit-content; padding: .65rem .9rem; border-radius: .5rem; background: #e5f3bc; font-weight: bold; }
+.withdrawn-note { padding: 1rem; border-left: .35rem solid var(--orange); border-radius: .5rem; background: #ffe1d5; }
 .behavior-list .content-row { border-left: .4rem solid var(--lilac); }
 .content-label { font-size: .95rem; color: var(--muted); margin-bottom: .5rem; }
 .explanation { padding: 1.5rem 0; }
