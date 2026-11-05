@@ -20,7 +20,7 @@ test('independent DEC-003: month-end collapses possible age, retires preview, an
   await page.getByLabel('Age in months', { exact: true }).fill('3');
   await page.clock.fastForward(70_000);
   await expect(page.locator('.age-tag')).toContainText('approximately 6 to 6 months');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /Preview the/ })).toHaveCount(0);
   await expect(page.getByLabel('Age in months', { exact: true })).toHaveValue('3');
 });
@@ -37,17 +37,17 @@ test('independent DEC-014: focus return updates birth age but preserves active o
   await expect(page.getByRole('heading', { name: '2-month checklist preview', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Use birth-based age', exact: true }).click();
   await expect(page.locator('.age-tag')).toContainText('6 months');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
 });
 
 test('independent DM-004: clamped exact day refreshes category detail at local midnight', async ({ page }) => {
   await open(page, '2027-02-28T04:59:50Z');
   await create(page, '2026-08-31');
-  await page.getByRole('link', { name: /Fictional category/ }).click();
+  await page.getByRole('link', { name: /Social\/Emotional/ }).click();
   await expect(page.locator('.age-tag')).toContainText('5 months');
   await page.clock.fastForward(70_000);
   await expect(page.locator('.age-tag')).toContainText('6 months');
-  await expect(page.locator('.lead')).toContainText('Fictional 6-month checklist');
+  await expect(page.locator('.lead')).toContainText('6 months');
 });
 
 test('independent LS-001: failed month write and day refresh retain precision and draft until retry', async ({ page }) => {
@@ -84,7 +84,7 @@ test('independent FR-001: rejected corrected ages preserve the selected birth-ba
     await page.getByLabel('Age in months', { exact: true }).fill(value);
     await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
     await expect(page.locator('#age-error')).toContainText('Enter a whole number');
-    await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
     await expect(page.locator('.age-tag')).toContainText('approximately 5 to 6 months');
   }
 });

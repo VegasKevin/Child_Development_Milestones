@@ -11,11 +11,21 @@ export function profileStore(namespace) {
   const name = `milestone-guide-profiles:${namespace}`;
   async function open() {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(name, 1);
+      const request = indexedDB.open(name, 2);
       let blocked = false;
       request.onupgradeneeded = () => {
-        request.result.createObjectStore('profiles', { keyPath: 'id' });
-        request.result.createObjectStore('state', { keyPath: 'id' });
+        const db = request.result;
+        if (!db.objectStoreNames.contains('profiles')) db.createObjectStore('profiles', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('state')) db.createObjectStore('state', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('favorites')) {
+          const favorites = db.createObjectStore('favorites', { keyPath: ['childId', 'type', 'contentId'] });
+          favorites.createIndex('childId', 'childId');
+        }
+        if (!db.objectStoreNames.contains('practice')) {
+          const practice = db.createObjectStore('practice', { keyPath: 'id' });
+          practice.createIndex('childId', 'childId');
+          practice.createIndex('childActivity', ['childId', 'activityId']);
+        }
       };
       request.onerror = () => reject(request.error);
       request.onblocked = () => { blocked = true; reject(new Error('Storage upgrade blocked')); };
@@ -26,11 +36,12 @@ export function profileStore(namespace) {
       };
     });
   }
-  async function transact(change) {
+  async function transact(change, includePersonal = false) {
     const db = await open();
     try {
       return await new Promise((resolve, reject) => {
-        const tx = db.transaction(['profiles', 'state'], change ? 'readwrite' : 'readonly');
+        const stores = includePersonal ? ['profiles', 'state', 'favorites', 'practice'] : ['profiles', 'state'];
+        const tx = db.transaction(stores, change ? 'readwrite' : 'readonly');
         const profiles = tx.objectStore('profiles');
         const state = tx.objectStore('state');
         let result;
@@ -47,7 +58,7 @@ export function profileStore(namespace) {
             if (selection.result && (Object.keys(selection.result).sort().join(',') !== 'id,selectedId' || selection.result.id !== 'selection')) throw new Error('Unsupported selection data');
             if (selection.result && selection.result.selectedId !== null && typeof selection.result.selectedId !== 'string') throw new Error('Invalid selection data');
             if (result.selectedId !== null && !result.profiles.some(profile => profile.id === result.selectedId)) throw new Error('Invalid selected profile');
-            if (change) change(result, profiles, state);
+            if (change) change(result, profiles, state, tx);
           } catch (error) { failure = error; tx.abort(); }
         };
       });
@@ -92,16 +103,26 @@ export function profileStore(namespace) {
       });
     },
     remove(id, revision) {
-      return transact((snapshot, profiles, state) => {
+      return transact((snapshot, profiles, state, tx) => {
         const record = snapshot.profiles.find(profile => profile.id === id);
         if (!record || record.revision !== revision) throw staleProfile();
         profiles.delete(id);
+        for (const storeName of ['favorites', 'practice']) {
+          const store = tx.objectStore(storeName);
+          const request = store.index('childId').openCursor(IDBKeyRange.only(id));
+          request.onsuccess = () => {
+            const cursor = request.result;
+            if (!cursor) return;
+            cursor.delete();
+            cursor.continue();
+          };
+        }
         snapshot.profiles = snapshot.profiles.filter(profile => profile.id !== id);
         if (snapshot.selectedId === id) {
           snapshot.selectedId = null;
           state.put({ id: 'selection', selectedId: null });
         }
-      });
+      }, true);
     },
   };
 }

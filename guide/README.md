@@ -1,5 +1,75 @@
 # Local milestone guide demo
 
+## CDC catalog and next implementation slices
+
+The first CDC catalog slice is complete as a source-linked engineering draft for FR-002, CP-002 and DM-002.
+The source register lists all 12 CDC checklist checkpoints from 2 months through 5 years, and the draft records 159 CDC behaviors with their published age, original category, direct CDC page, and page publication/update/review dates.
+The February 2022 revised checklist framework is distinguished from the September 2025 publication and February 2026 update/review metadata on the online pages.
+The draft includes CDC attribution, a no-charge availability statement, a non-endorsement disclaimer, and the source reuse constraints.
+The milestone statements and parent-friendly mappings remain explicitly pending human editorial review, so this draft is not approved for product publication.
+
+The first browser check failed because the missing CDC source-register endpoint returned 404.
+The loopback server now serves the source register and catalog draft through explicit allowlisted routes.
+Focused desktop/mobile browser checks passed 4/4 after the implementation, including exact checkpoint/source URL matching, per-age counts and content fingerprints, original-category checks, fixed source page dates, and reuse statements.
+The full desktop/mobile browser suite passed 112/112, all 39 unit checks passed, `npm.cmd run check` passed, and `git diff --check` passed.
+Fresh independent reviews verified the official checkpoint inventory and source URLs, spot-checked source wording and categories, caught and resolved missing no-charge attribution and weak content/date assertions, and confirmed the final date assertions match CDC page metadata.
+The engineering review does not represent clinical or editorial approval.
+
+The first C2 validation test failed because the CDC validator module did not exist.
+The new validator checks the exact 12-age inventory, official page URL per age, source metadata, all four original categories at every checkpoint, expected per-age counts, unique deterministic IDs, source-text/category fingerprints, and required reuse/attribution statements.
+Malformed candidate records return structured validation issues rather than crashing the content check.
+`npm.cmd run check` now runs both the existing synthetic milestone check and the CDC catalog check.
+The final unit suite passed 48/48, the integrated check passed both stages, and `git diff --check` passed.
+Fresh independent review reproduced malformed-record cases, verified the identity and source integrity gates, and found no remaining material C2 issues.
+
+| Slice | Scope | Status |
+| --- | --- | --- |
+| C1: source-linked CDC catalog draft | Record all CDC checklist behavior statements, original categories, checkpoint ages, source URLs, page dates, and reuse notes. | Complete as a draft; human editorial review remains pending. |
+| C2: catalog coverage and traceability checks | Validate checkpoint coverage, IDs, source links, category provenance, and content integrity in the routine content check. | Complete. |
+| C3: connect the CDC catalog to the guide | Render source-backed CDC records in the local guide while keeping the pending editorial status clear and authored content separate. | Complete for the local demo; human editorial approval remains pending. |
+| C4: child-specific saved/practice records and backup | Implement favorites and practice history, then versioned encrypted export/restore, under the local-record requirements. | In progress: favorites persist for the selected child, show withdrawal state, and appear in Saved; practice history and backup are not started. |
+
+## Current work checkpoint - 2026-11-05
+
+The active goal is to complete C1 through C4 in order, with a failing end-to-end case, implementation, required checks, fresh independent review, and updated progress evidence for each slice.
+C1 and C2 are verified complete as engineering work, while CDC milestone wording, parent-friendly mappings, explanations, and activities remain pending human editorial approval.
+C3 is verified complete for the local demo after passing the desktop/mobile browser suite and fresh independent review.
+C4 is in progress; its first vertical behavior saves CDC milestone and activity favorites to the selected child and reopens them from a Saved screen.
+The favorites step is verified complete after two fresh reviews; it labels safety-withdrawn and retired references using catalog tombstones, isolates favorites by child, and removes personal records atomically when a profile is deleted.
+Practice history, encrypted backup, and restore are not started.
+
+C3 first reproduced the expected failure because the normal age-to-category route showed only the fictional catalog.
+The guide now reads all 12 CDC checkpoints, retains the four original categories, displays source statements and direct CDC source/date information, and makes the pending editorial state explicit.
+The reviewed detail screen does not offer unreviewed explanations or activities, while Search continues to identify its activity records as fictional engineering examples.
+The loopback server serves the CDC JSON as an allowlisted JavaScript module so `connect-src 'none'` stays intact, and it returns an empty 204 response for the browser's automatic favicon request.
+Legacy guide and profile browser expectations were updated from fictional checkpoint labels to CDC checkpoint labels and current reviewed-state behavior.
+
+C3 verification passed `npx.cmd playwright test` at 114/114 desktop/mobile cases, including the CDC route, Search, temporary ages, previews, and profile flows.
+`npm.cmd test` passed 48/48, `npm.cmd run check` passed the synthetic and CDC catalog checks, and `git diff --check` passed.
+Desktop and mobile screenshots of the checklist and milestone detail were inspected without finding clipping or overlap.
+Fresh independent C3 review found no material issues in source linkage, editorial-status labeling, synthetic Search labeling, the CSP/server allowlist, or age-selection paths.
+This engineering review does not constitute CDC or clinical editorial approval.
+
+C4 is based on FR-007 through FR-010, DM-005/006/007, DEC-002/007/008, LS-001/003/004/005, and flows P3 through P8.
+The first C4 browser case reproduced the missing save action on the CDC milestone detail page.
+The implementation adds a v2 IndexedDB schema with separate favorites and practice object stores beside profiles, a local typed-favorite store, save/remove controls, and a Saved view scoped to the selected child.
+Favorites support milestone and activity references, persist across reloads, remain visible with the saved label after a safety withdrawal, and are removed with the profile in the same IndexedDB transaction.
+The Saved UI displays a withdrawn or retired disposition from the active catalog tombstone and distinguishes those states from references that are merely unavailable.
+The E2E suite verifies saving/removing after reload, child isolation, profile-removal cascade, safety-withdrawn activity references, and narrow phone layout with enlarged text.
+The Saved screenshots were inspected at desktop and phone sizes without visible overflow or clipping.
+The first independent review found the missing Withdrawn label, and the fix passed the targeted desktop/mobile regression and a fresh final review with no remaining material issues.
+
+Files changed across C1 through C3 and current C4 work include `guide/README.md`, `guide/index.html`, `guide/guide.js`, `guide/guide.css`, `guide/profile-store.js`, `src/personal-records.js`, `scripts/serve-guide.mjs`, `package.json`, `src/cdc-catalog-validation.js`, `scripts/check-cdc-catalog.mjs`, `test/cdc-catalog-validation.test.js`, `fixtures/cdc-source-register.json`, `fixtures/cdc-milestones-draft.json`, `e2e/cdc-source-register.spec.js`, `e2e/cdc-guide.spec.js`, `e2e/saved-records.spec.js`, `e2e/guide.spec.js`, `e2e/approximate-age.spec.js`, `e2e/profile-age-review.spec.js`, `e2e/profile-ages.spec.js`, `e2e/profile-management.spec.js`, `e2e/profile-review.spec.js`, and `e2e/profiles.spec.js`.
+There are no known unresolved C3 or C4 favorites-slice code findings.
+Pending decisions or dependencies for later work include the already-documented reviewed encryption format and compatibility fixtures before implementing encrypted backup and restore.
+
+Key decisions are to use original CDC categories, avoid unreviewed explanations or activities, preserve the loopback no-connect policy, and keep fictional Search content visibly identified.
+Favorites use opaque stable content IDs plus the saved display label and are unique per child, content type, and content ID.
+Profile removal must delete that child's favorites and practice entries in the same IndexedDB transaction so it cannot leave dangling personal records.
+The Saved screen follows the supplied behavior-list reference, existing palette, compact editorial rows, and single-column phone layout.
+The latest verification passed `npx.cmd playwright test` at 120/120 desktop/mobile cases, `npm.cmd test` at 48/48, `npm.cmd run check` through both the synthetic and CDC stages, and `git diff --check`.
+The exact next step is to begin the separate practice-history behavior with a failing E2E case, then specify and implement LS-003/LS-004 encrypted backup and restore.
+
 ## FR-001 local profile goal
 
 The completed local profile flow connects child profiles to the existing age engine while preserving temporary browsing.

@@ -1,14 +1,48 @@
 import { guideCatalog as catalog } from '/fixtures/guide-catalog.js';
+import cdcDraft from '/fixtures/cdc-milestones-draft.js';
 import { validateCatalog, linkedActivities } from '/src/catalog.js';
 import { selectChecklist } from '/src/checklist-selection.js';
 import { browseChecklists } from '/src/age-browsing.js';
+import { personalRecords } from '/src/personal-records.js';
 import { localProfiles, today } from '/profiles.js';
 
 const app = document.querySelector('#app');
+const cdcCategoryIds = new Map([
+  ['Social/Emotional', 'social-emotional'],
+  ['Language/Communication', 'language-communication'],
+  ['Cognitive (learning, thinking, problem-solving)', 'cognitive'],
+  ['Movement/Physical Development', 'movement-physical-development'],
+]);
+const cdcCheckpoints = cdcDraft.checkpoints.map(({ id, ageMonths, label }) => ({ id, ageMonths, label }));
+const cdcCategories = [...new Set(cdcDraft.checkpoints.flatMap(checkpoint =>
+  checkpoint.milestones.map(item => item.originalCategory)))].map(label => ({ id: cdcCategoryIds.get(label), label }));
+const cdcMilestones = cdcDraft.checkpoints.flatMap(checkpoint => checkpoint.milestones.map(item => ({
+  ...item,
+  checkpointId: checkpoint.id,
+  checkpointLabel: checkpoint.label,
+  categoryId: cdcCategoryIds.get(item.originalCategory),
+  sourceUrl: checkpoint.sourceUrl,
+  pagePublished: checkpoint.pagePublished,
+  pageUpdated: checkpoint.pageUpdated,
+  pageReviewed: checkpoint.pageReviewed,
+})));
 let age = null;
 let preview = false;
-const profiles = localProfiles((goHome = true, resetAge = true) => {
+let savedFavorites = [];
+let savedChildId = null;
+let savedLoadError = false;
+const records = personalRecords('local-demo');
+async function reloadSaved(childId) {
+  savedChildId = childId ?? null;
+  savedFavorites = [];
+  savedLoadError = false;
+  if (!savedChildId) return;
+  try { savedFavorites = await records.loadFavorites(savedChildId); }
+  catch { savedLoadError = true; }
+}
+const profiles = localProfiles(async (goHome = true, resetAge = true) => {
   if (resetAge) { age = null; preview = false; }
+  if (goHome) await reloadSaved(profiles.selected()?.id);
   if (goHome && location.hash !== '#/') location.hash = '#/';
   else render(true);
 });
@@ -26,13 +60,13 @@ function context() {
   const profile = profiles.selected();
   let selection;
   if (profile) {
-    try { selection = browseChecklists({ profile, today: today(), ...(age === null ? {} : { temporaryAgeMonths: age }) }, catalog.checkpoints); }
+    try { selection = browseChecklists({ profile, today: today(), ...(age === null ? {} : { temporaryAgeMonths: age }) }, cdcCheckpoints); }
     catch {
       selection = age === null ? { status: 'invalid-profile-age', checklist: null, preview: null,
         message: 'Check the date on this device or edit the saved birth information. You can still enter a temporary age.' }
-        : { ...selectChecklist(age, catalog.checkpoints), age: { minMonths: age, maxMonths: age, approximate: false }, childId: profile.id };
+        : { ...selectChecklist(age, cdcCheckpoints), age: { minMonths: age, maxMonths: age, approximate: false }, childId: profile.id };
     }
-  } else selection = age === null ? null : selectChecklist(age, catalog.checkpoints);
+  } else selection = age === null ? null : selectChecklist(age, cdcCheckpoints);
   const checkpoint = preview ? selection?.preview?.checklist : selection?.checklist;
   return { selection, checkpoint };
 }
@@ -57,6 +91,50 @@ function sourceDetails(sourceIds) {
     <p>These are fictional engineering fixtures, not reviewed CDC milestones or activity guidance.</p>
     <ul>${sourceIds.map(id => catalog.sources.find(source => source.id === id)).filter(Boolean)
     .map(source => `<li>${escape(source.title)}<br>${escape(source.reuseInfo)}</li>`).join('')}</ul></details>`;
+}
+
+function cdcSourcePanel(milestone) {
+  return `<section class="cdc-source-panel" aria-label="CDC source and review status">
+    <p><strong>Original CDC category:</strong> ${escape(milestone.originalCategory)}</p>
+    <a href="${escape(milestone.sourceUrl)}" target="_blank" rel="noreferrer">Open the CDC ${escape(milestone.checkpointLabel)} checklist</a>
+    <details class="source-details"><summary>Source and review dates</summary>
+      <dl class="source-dates"><dt>Published</dt><dd>${escape(milestone.pagePublished)}</dd>
+        <dt>Updated</dt><dd>${escape(milestone.pageUpdated)}</dd><dt>Reviewed</dt><dd>${escape(milestone.pageReviewed)}</dd></dl>
+      <p>Source: U.S. Centers for Disease Control and Prevention, Learn the Signs. Act Early.</p>
+      <p>This project is not endorsed by CDC. CDC material is available at no charge from the source.</p>
+    </details>
+  </section>`;
+}
+
+function favoriteControl(type, id, label) {
+  if (!profiles.selected()) return '<p class="save-profile-note">Create or select a child profile to save this item.</p>';
+  const saved = savedFavorites.some(item => item.type === type && item.contentId === id);
+  const saveLabel = type === 'milestone' ? 'Save behavior to Saved' : 'Save activity to Saved';
+  return `<div class="favorite-control"><button class="clear-button" data-favorite-type="${type}" data-content-id="${escape(id)}" data-content-label="${escape(label)}" aria-pressed="${saved}">${saved ? 'Remove from Saved' : saveLabel}</button>
+    <p class="form-error" data-favorite-error role="alert"></p></div>`;
+}
+
+function savedScreen() {
+  const profile = profiles.selected();
+  if (!profile) return `${heading('Saved items')}<p class="lead">Create or select a child profile to see that child's saved items.</p><p><a class="primary" href="#/profiles">Manage local profiles</a></p>`;
+  const entries = savedFavorites.map(item => {
+    const milestone = item.type === 'milestone' && cdcMilestones.find(candidate => candidate.id === item.contentId);
+    const activity = item.type === 'activity' && catalog.activities.find(candidate => candidate.id === item.contentId);
+    const tombstone = catalog.retired?.find(candidate => candidate.type === item.type && candidate.id === item.contentId);
+    const categoryLabel = milestone?.originalCategory;
+    const checkpoint = milestone && cdcCheckpoints.find(candidate => candidate.id === milestone.checkpointId);
+    const href = milestone ? `#/milestone/${encodeURIComponent(milestone.id)}` : activity ? `#/library/activity/${encodeURIComponent(activity.id)}` : '';
+    const age = checkpoint?.ageMonths ?? '';
+    const contextLabel = milestone ? `${categoryLabel} · ${checkpoint.label} checklist` : activity ? 'Activity'
+      : tombstone?.disposition === 'withdrawn' ? 'Withdrawn'
+        : tombstone ? 'Retired' : 'Unavailable in the current catalog';
+    return `<li class="saved-row${milestone ? ` saved-row--${escape(milestone.categoryId)}` : ''}">
+      ${href ? `<a href="${href}" data-open-favorite data-checkpoint-age="${age}"><strong>${escape(item.label)}</strong><span>${escape(contextLabel)}</span></a>` : `<span><strong>${escape(item.label)}</strong><span>${escape(contextLabel)}</span></span>`}
+      <button class="clear-button" data-remove-favorite="${escape(item.type)}" data-content-id="${escape(item.contentId)}">Remove</button></li>`;
+  });
+  return `${heading(`Saved for ${profile.label}`)}<p class="lead">Only this child's saved behaviors and activities appear here.</p>
+    ${savedLoadError ? '<p role="alert">Saved items could not be loaded. Existing records have not changed. Reload this page to try again.</p>' : '<p class="local-data-note">Saved in this browser. Clearing site data can remove them.</p>'}
+    ${entries.length ? `<ul class="saved-list" aria-label="Saved behaviors and activities">${entries.join('')}</ul>` : '<section class="empty-saved"><h2>Nothing saved yet.</h2><p>Save a behavior or activity to return to it here.</p><a href="#/">Browse milestones</a></section>'}`;
 }
 
 function suitabilityLabel(activity) {
@@ -99,6 +177,7 @@ function libraryScreen() {
   });
   const skills = catalog.skills.filter(item => catalog.activities.some(activity => activity.skillIds?.includes(item.id)));
   return `${heading('Activity library')}<p class="lead">Find an activity without choosing a milestone first.</p>
+    <aside class="review-notice"><strong>Fictional engineering examples.</strong> Search content tests interface behavior and is not reviewed parenting guidance.</aside>
     <form id="library-form" class="library-form${approximate ? ' is-range' : ''}" novalidate>
       <div class="keyword-field"><label for="keyword">Search by keyword</label><input type="search" id="keyword" value="${escape(query)}" placeholder="Title, materials or instructions"></div>
       <div class="filter-age"><label class="age-mode"><input id="approximate-age" type="checkbox" aria-controls="age-range-end" ${approximate ? 'checked' : ''}><span>Use an approximate age range</span></label>
@@ -125,16 +204,17 @@ function libraryScreen() {
 
 function dashboard() {
   const { selection, checkpoint } = context();
-  const categories = checkpoint ? catalog.categories.filter(category => catalog.milestones.some(milestone =>
+  const categories = checkpoint ? cdcCategories.filter(category => cdcMilestones.some(milestone =>
     milestone.checkpointId === checkpoint.id && milestone.categoryId === category.id)) : [];
   let content = '<h2 tabindex="-1" data-result-title>Start with an age.</h2><p>Enter an age in months to explore a checklist.</p>';
   if (selection) {
     if (checkpoint) {
       content = `<div class="section-heading"><h2 tabindex="-1" data-result-title>${escape(preview ? selection.preview.label : checkpoint.label)}</h2>
-        <p>${preview ? 'An optional look ahead. This is a preview, not the applicable checklist.' : 'Explore a category, then open a behavior to find its linked activities.'}</p></div>
+        <p>${preview ? 'An optional look ahead. This is a preview, not the applicable checklist.' : `CDC checklist for the end of ${escape(checkpoint.label)}.`}</p></div>
+        <aside class="review-notice"><strong>Human editorial review pending.</strong> These statements retain CDC source wording and original categories. Explanations, parent-friendly mappings, and activities are not yet reviewed.</aside>
         <div class="category-grid">${categories.map(category => {
-          const count = catalog.milestones.filter(milestone => milestone.checkpointId === checkpoint.id && milestone.categoryId === category.id).length;
-          return `<a class="category-tile" href="#/category/${encodeURIComponent(category.id)}">
+          const count = cdcMilestones.filter(milestone => milestone.checkpointId === checkpoint.id && milestone.categoryId === category.id).length;
+          return `<a class="category-tile category-tile--${escape(category.id)}" href="#/category/${encodeURIComponent(category.id)}">
             <span class="tile-symbol" aria-hidden="true">✳</span><h3>${escape(category.label)}</h3>
             <span>${count} ${count === 1 ? 'behavior' : 'behaviors'}</span><span class="tile-bottom">View behaviors ${arrow}</span></a>`;
         }).join('')}</div>`;
@@ -157,25 +237,21 @@ function dashboard() {
       ${profiles.selected() && age !== null ? '<p><button class="clear-button" id="birth-based-age">Use birth-based age</button></p>' : ''}
       <p class="temporary-note">${profiles.selected() ? 'Temporary ages clear on reload or when you change children.' : 'This age is temporary. Reloading starts fresh.'}</p></section>
       <section class="checklist-panel" aria-label="Checklist">${content}
-        <p class="catalog-note">Demo checkpoints: 2, 4, 6 and 60 months.<br>This is an incomplete fictional catalog.</p></section></div>`;
+        <p class="catalog-note">CDC checklist checkpoints are shown. No milestones are added for ages between published checkpoints.</p></section></div>`;
 }
 
 function categoryScreen(category, checkpoint) {
-  const milestones = catalog.milestones.filter(milestone => milestone.categoryId === category.id && milestone.checkpointId === checkpoint.id);
+  const milestones = cdcMilestones.filter(milestone => milestone.categoryId === category.id && milestone.checkpointId === checkpoint.id);
   return `${back('#/', 'Back to milestones')}${contextBar(checkpoint)}${heading(category.label)}
-    <p class="lead">${escape(checkpoint.label)}. Open a behavior to explore it.</p>
+    <p class="lead">${escape(checkpoint.label)}. Original CDC category.</p>
     <ul class="content-list behavior-list">${milestones.map(milestone => `<li><a class="content-row" href="#/milestone/${encodeURIComponent(milestone.id)}"><span>${escape(milestone.sourceStatement)}</span>${arrow}</a></li>`).join('')}</ul>`;
 }
 
 function milestoneScreen(milestone, checkpoint) {
-  const activities = linkedActivities(catalog, milestone.id);
   return `${back(`#/category/${encodeURIComponent(milestone.categoryId)}`, 'Back to category')}${contextBar(checkpoint)}
-    <p class="content-label">Behavior</p>${heading(milestone.sourceStatement)}
-    <section class="explanation"><h2>What this means</h2><p>${escape(milestone.explanation)}</p>
-      <h3>For example</h3><ul>${milestone.examples.map(example => `<li>${escape(example)}</li>`).join('')}</ul></section>
-    <section class="activities"><div class="list-heading"><h2>Activities to explore</h2><span>${activities.length} linked</span></div>
-      ${activities.length ? `<ul class="content-list" aria-label="Linked activities">${activities.map(activity => `<li><a class="content-row" href="#/activity/${encodeURIComponent(activity.id)}/${encodeURIComponent(milestone.id)}"><span>${escape(activity.title)}</span>${arrow}</a></li>`).join('')}</ul>` : '<p>No activities are linked to this behavior yet.</p>'}</section>
-    ${sourceDetails(milestone.sourceIds)}`;
+    <p class="content-label">CDC milestone statement</p>${heading(milestone.sourceStatement)}
+    <aside class="review-notice"><strong>Human editorial review pending.</strong> This page shows the CDC statement and category. No reviewed explanation, example, or related activity is available yet.</aside>
+    ${favoriteControl('milestone', milestone.id, milestone.sourceStatement)}${cdcSourcePanel(milestone)}`;
 }
 
 function activityScreen(activity, milestone, checkpoint) {
@@ -186,11 +262,56 @@ function activityScreen(activity, milestone, checkpoint) {
     <section class="activity-section"><h2>Materials</h2>${activity.materials.length ? `<ul>${activity.materials.map(item => `<li>${escape(item)}</li>`).join('')}</ul>` : '<p>No materials listed.</p>'}</section>
     <section class="activity-section"><h2>Steps</h2><ol class="steps">${activity.instructions.map(item => `<li>${escape(item)}</li>`).join('')}</ol></section>
     <section class="safety"><h2>Safety notes</h2>${activity.safetyWarnings.length ? `<ul>${activity.safetyWarnings.map(warning => `<li>${escape(warning)}</li>`).join('')}</ul>` : '<p>No safety warnings listed in this fictional demo.</p>'}</section>
-    ${sourceDetails(activity.sourceIds)}`;
+    ${favoriteControl('activity', activity.id, activity.title)}${sourceDetails(activity.sourceIds)}`;
 }
 
 function unavailable() {
   return `${back('#/', 'Back to milestones')}${heading('Page unavailable')}<p>Choose an age, then open a behavior from its checklist.</p>`;
+}
+
+function bindFavorites() {
+  document.querySelectorAll('[data-favorite-type]').forEach(button => button.addEventListener('click', async () => {
+    const profile = profiles.selected();
+    if (!profile) return;
+    button.disabled = true;
+    const type = button.dataset.favoriteType;
+    const contentId = button.dataset.contentId;
+    const saved = savedFavorites.some(item => item.type === type && item.contentId === contentId);
+    try {
+      if (saved) await records.removeFavorite(profile.id, type, contentId);
+      else await records.saveFavorite({ childId: profile.id, type, contentId, label: button.dataset.contentLabel });
+      await reloadSaved(profile.id);
+      render();
+    } catch {
+      const error = button.parentElement.querySelector('[data-favorite-error]');
+      error.textContent = 'Could not update Saved. Your existing records are unchanged. Try again.';
+      button.disabled = false;
+      button.focus();
+    }
+  }));
+  document.querySelectorAll('[data-remove-favorite]').forEach(button => button.addEventListener('click', async () => {
+    const profile = profiles.selected();
+    if (!profile) return;
+    button.disabled = true;
+    try {
+      await records.removeFavorite(profile.id, button.dataset.removeFavorite, button.dataset.contentId);
+      await reloadSaved(profile.id);
+      render(true);
+    } catch {
+      savedLoadError = true;
+      render();
+    }
+  }));
+  document.querySelectorAll('[data-open-favorite]').forEach(link => link.addEventListener('click', event => {
+    const checkpointAge = link.dataset.checkpointAge;
+    if (checkpointAge) {
+      event.preventDefault();
+      age = Number(checkpointAge);
+      preview = false;
+      if (location.hash === link.getAttribute('href')) render();
+      else location.hash = link.getAttribute('href');
+    }
+  }));
 }
 
 function render(focusResult = false) {
@@ -199,27 +320,29 @@ function render(focusResult = false) {
   let content;
   if (!type) content = dashboard();
   else if (type === 'profiles') content = profiles.screen();
+  else if (type === 'saved') content = savedScreen();
   else if (type === 'library') {
     const activity = id === 'activity' && catalog.activities.find(item => item.id === from);
     content = !id ? libraryScreen() : activity ? activityScreen(activity) : unavailable();
   }
   else if (!checkpoint) content = unavailable();
   else if (type === 'category') {
-    const category = catalog.categories.find(item => item.id === id);
-    const hasMilestones = catalog.milestones.some(item => item.categoryId === id && item.checkpointId === checkpoint.id);
+    const category = cdcCategories.find(item => item.id === id);
+    const hasMilestones = cdcMilestones.some(item => item.categoryId === id && item.checkpointId === checkpoint.id);
     content = category && hasMilestones ? categoryScreen(category, checkpoint) : unavailable();
   } else if (type === 'milestone') {
-    const milestone = catalog.milestones.find(item => item.id === id && item.checkpointId === checkpoint.id);
+    const milestone = cdcMilestones.find(item => item.id === id && item.checkpointId === checkpoint.id);
     content = milestone ? milestoneScreen(milestone, checkpoint) : unavailable();
   } else if (type === 'activity') {
-    const milestone = catalog.milestones.find(item => item.id === from && item.checkpointId === checkpoint.id);
+    const milestone = cdcMilestones.find(item => item.id === from && item.checkpointId === checkpoint.id);
     const activity = milestone && linkedActivities(catalog, milestone.id).find(item => item.id === id);
     content = activity ? activityScreen(activity, milestone, checkpoint) : unavailable();
   } else content = unavailable();
-  app.innerHTML = `<header class="site-header"><a class="brand" href="#/" aria-label="Milestone guide home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Milestone guide</a><nav aria-label="Main navigation"><a href="#/" ${!['library', 'profiles'].includes(type) ? 'aria-current="page"' : ''}>Milestones</a><a href="#/library" ${type === 'library' ? 'aria-current="page"' : ''}>Search</a><a href="#/profiles" ${type === 'profiles' ? 'aria-current="page"' : ''}>Profiles</a></nav><span class="demo-tag">Local demo</span></header>
+  app.innerHTML = `<header class="site-header"><a class="brand" href="#/" aria-label="Milestone guide home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Milestone guide</a><nav aria-label="Main navigation"><a href="#/" ${!['library', 'profiles', 'saved'].includes(type) ? 'aria-current="page"' : ''}>Milestones</a><a href="#/library" ${type === 'library' ? 'aria-current="page"' : ''}>Search</a><a href="#/saved" ${type === 'saved' ? 'aria-current="page"' : ''}>Saved</a><a href="#/profiles" ${type === 'profiles' ? 'aria-current="page"' : ''}>Profiles</a></nav><span class="demo-tag">CDC content draft</span></header>
     <main id="main" tabindex="-1" class="${type && !(type === 'library' && !id) ? 'detail' : ''}">${content}</main>
-    <footer>Made for exploring the flow. All checklist and activity content here is fictional.</footer>`;
+    <footer>CDC milestone statements are pending human editorial review. Search activity examples are fictional engineering fixtures. CDC has not reviewed or endorsed this project.</footer>`;
   profiles.bind();
+  bindFavorites();
   document.querySelector('#age-form')?.addEventListener('submit', event => {
     event.preventDefault();
     const input = document.querySelector('#age');
@@ -291,6 +414,7 @@ function render(focusResult = false) {
 try {
   validateCatalog(catalog);
   await profiles.load();
+  await reloadSaved(profiles.selected()?.id);
   document.querySelector('.skip-link').addEventListener('click', event => {
     event.preventDefault();
     document.querySelector('main')?.focus();

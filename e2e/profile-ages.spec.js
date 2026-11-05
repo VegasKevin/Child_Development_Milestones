@@ -16,15 +16,15 @@ test('DEC-005/DM-A02: birth month defaults younger and offers a labeled next-che
   await open(page);
   await monthProfile(page);
   await expect(page.locator('.age-tag')).toContainText('approximately 5 to 6 months');
-  await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Preview the 6-month checklist', exact: true }).click();
   await expect(page.getByRole('heading', { name: '6-month checklist preview', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: /Fictional category/ }).click();
+  await page.getByRole('link', { name: /Social\/Emotional/ }).click();
   await expect(page.locator('.age-tag')).toContainText('approximately 5 to 6 months');
   await expect(page.locator('.age-tag')).toContainText('6-month checklist preview');
   await page.getByRole('link', { name: 'Back to milestones', exact: true }).click();
   await page.getByRole('button', { name: 'Return to age result', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.locator('.age-tag')).toContainText('approximately 5 to 6 months');
   await page.screenshot({ path: testInfo.outputPath('month-profile.png'), fullPage: true });
@@ -38,9 +38,9 @@ test('DEC-014/DM-A03: temporary corrected age retains child, clears on child swi
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
   await expect(page.locator('.age-tag')).toContainText('temporary age 2 months');
   await expect(page.getByLabel('Selected child')).toHaveValue(childId);
-  await expect(page.getByRole('heading', { name: 'Fictional 2-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '2 months', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Use birth-based age', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
   await page.getByLabel('Age in months', { exact: true }).fill('2');
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
   await page.reload();
@@ -63,9 +63,9 @@ test('DM-004: age updates across local midnight without reloading', async ({ pag
   await open(page, '2026-11-16T04:59:50Z');
   await page.getByLabel('Birth date', { exact: true }).fill('2026-05-16');
   await page.getByRole('button', { name: 'Create profile', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
   await page.clock.fastForward(70_000);
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
 });
 
 test('DEC-005: month age below first checkpoint keeps coverage message with optional preview', async ({ page }) => {

@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "status": "draft-pending-human-review",
+  "edition": "February 2022 revised CDC milestone checklist framework; current CDC online checklist pages reviewed February 17, 2026",
+  "attribution": "Source: U.S. Centers for Disease Control and Prevention, Learn the Signs. Act Early. CDC developmental milestones. This material is available from CDC at no charge. This project is not endorsed by CDC. The original source wording and checkpoint assignment are retained; parent-facing explanations and category mappings are not yet reviewed.",
+  "authorityUrl": "https://www.cdc.gov/act-early/digital-online-checklist/",
+  "sourceRegister": "./cdc-source-register.json",
+  "checkpoints": [
+    {
+      "id": "cdc-checkpoint-2m", "ageMonths": 2, "label": "2 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/2-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-2m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Calms down when spoken to or picked up"},
+        {"id":"cdc-2m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Looks at your face"},
+        {"id":"cdc-2m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Seems happy to see you when you walk up to her"},
+        {"id":"cdc-2m-social-04","originalCategory":"Social/Emotional","sourceStatement":"Smiles when you talk to him"},
+        {"id":"cdc-2m-language-01","originalCategory":"Language/Communication","sourceStatement":"Makes sounds other than crying"},
+        {"id":"cdc-2m-language-02","originalCategory":"Language/Communication","sourceStatement":"Reacts to loud sounds"},
+        {"id":"cdc-2m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Watches you as you move"},
+        {"id":"cdc-2m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Looks at a toy for several seconds"},
+        {"id":"cdc-2m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Holds head up when on tummy"},
+        {"id":"cdc-2m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Moves both arms and both legs"},
+        {"id":"cdc-2m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Opens hands briefly"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-4m", "ageMonths": 4, "label": "4 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/4-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-4m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Smiles on his own to get your attention"},
+        {"id":"cdc-4m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Chuckles when you try to make him laugh"},
+        {"id":"cdc-4m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Looks at you, moves, or makes sounds to get or keep your attention"},
+        {"id":"cdc-4m-language-01","originalCategory":"Language/Communication","sourceStatement":"Makes sounds like “oooo”, “aahh” (cooing)"},
+        {"id":"cdc-4m-language-02","originalCategory":"Language/Communication","sourceStatement":"Makes sounds back when you talk to him"},
+        {"id":"cdc-4m-language-03","originalCategory":"Language/Communication","sourceStatement":"Turns head towards the sound of your voice"},
+        {"id":"cdc-4m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"If hungry, opens mouth when she sees breast or bottle"},
+        {"id":"cdc-4m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Looks at her hands with interest"},
+        {"id":"cdc-4m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Holds head steady without support when you are holding him"},
+        {"id":"cdc-4m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Holds a toy when you put it in his hand"},
+        {"id":"cdc-4m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Uses his arm to swing at toys"},
+        {"id":"cdc-4m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Brings hands to mouth"},
+        {"id":"cdc-4m-movement-05","originalCategory":"Movement/Physical Development","sourceStatement":"Pushes up onto elbows/forearms when on tummy"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-6m", "ageMonths": 6, "label": "6 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/6-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-6m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Knows familiar people"},
+        {"id":"cdc-6m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Likes to look at self in mirror"},
+        {"id":"cdc-6m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Laughs"},
+        {"id":"cdc-6m-language-01","originalCategory":"Language/Communication","sourceStatement":"Takes turns making sounds with you"},
+        {"id":"cdc-6m-language-02","originalCategory":"Language/Communication","sourceStatement":"Blows “raspberries” (sticks tongue out and blows)"},
+        {"id":"cdc-6m-language-03","originalCategory":"Language/Communication","sourceStatement":"Makes squealing noises"},
+        {"id":"cdc-6m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Puts things in her mouth to explore them"},
+        {"id":"cdc-6m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Reaches to grab a toy she wants"},
+        {"id":"cdc-6m-cognitive-03","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Closes lips to show she doesn’t want more food"},
+        {"id":"cdc-6m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Rolls from tummy to back"},
+        {"id":"cdc-6m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Pushes up with straight arms when on tummy"},
+        {"id":"cdc-6m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Leans on hands to support herself when sitting"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-9m", "ageMonths": 9, "label": "9 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/9-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-9m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Is shy, clingy, or fearful around strangers"},
+        {"id":"cdc-9m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Shows several facial expressions, like happy, sad, angry, and surprised"},
+        {"id":"cdc-9m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Looks when you call her name"},
+        {"id":"cdc-9m-social-04","originalCategory":"Social/Emotional","sourceStatement":"Reacts when you leave (looks, reaches for you, or cries)"},
+        {"id":"cdc-9m-social-05","originalCategory":"Social/Emotional","sourceStatement":"Smiles or laughs when you play peek-a-boo"},
+        {"id":"cdc-9m-language-01","originalCategory":"Language/Communication","sourceStatement":"Makes a lot of different sounds like “mamamama” and “bababababa”"},
+        {"id":"cdc-9m-language-02","originalCategory":"Language/Communication","sourceStatement":"Lifts arms up to be picked up"},
+        {"id":"cdc-9m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Looks for objects when dropped out of sight (like his spoon or toy)"},
+        {"id":"cdc-9m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Bangs two things together"},
+        {"id":"cdc-9m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Gets to a sitting position by herself"},
+        {"id":"cdc-9m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Moves things from one hand to her other hand"},
+        {"id":"cdc-9m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Uses fingers to “rake” food towards himself"},
+        {"id":"cdc-9m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Sits without support"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-12m", "ageMonths": 12, "label": "1 year", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/1-year.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-12m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Plays games with you, like pat-a-cake"},
+        {"id":"cdc-12m-language-01","originalCategory":"Language/Communication","sourceStatement":"Waves “bye-bye”"},
+        {"id":"cdc-12m-language-02","originalCategory":"Language/Communication","sourceStatement":"Calls a parent “mama” or “dada” or another special name"},
+        {"id":"cdc-12m-language-03","originalCategory":"Language/Communication","sourceStatement":"Understands “no” (pauses briefly or stops when you say it)"},
+        {"id":"cdc-12m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Puts something in a container, like a block in a cup"},
+        {"id":"cdc-12m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Looks for things he sees you hide, like a toy under a blanket"},
+        {"id":"cdc-12m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Pulls up to stand"},
+        {"id":"cdc-12m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Walks, holding on to furniture"},
+        {"id":"cdc-12m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Drinks from a cup without a lid, as you hold it"},
+        {"id":"cdc-12m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Picks things up between thumb and pointer finger, like small bits of food"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-15m", "ageMonths": 15, "label": "15 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/15-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-15m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Copies other children while playing, like taking toys out of a container when another child does"},
+        {"id":"cdc-15m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Shows you an object she likes"},
+        {"id":"cdc-15m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Claps when excited"},
+        {"id":"cdc-15m-social-04","originalCategory":"Social/Emotional","sourceStatement":"Hugs stuffed doll or other toy"},
+        {"id":"cdc-15m-social-05","originalCategory":"Social/Emotional","sourceStatement":"Shows you affection (hugs, cuddles, or kisses you)"},
+        {"id":"cdc-15m-language-01","originalCategory":"Language/Communication","sourceStatement":"Tries to say one or two words besides “mama” or “dada,” like “ba” for ball or “da” for dog"},
+        {"id":"cdc-15m-language-02","originalCategory":"Language/Communication","sourceStatement":"Looks at a familiar object when you name it"},
+        {"id":"cdc-15m-language-03","originalCategory":"Language/Communication","sourceStatement":"Follows directions given with both a gesture and words. For example, she gives you a toy when you hold out your hand and say, “Give me the toy”."},
+        {"id":"cdc-15m-language-04","originalCategory":"Language/Communication","sourceStatement":"Points to ask for something or to get help"},
+        {"id":"cdc-15m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Tries to use things the right way, like a phone, cup, or book"},
+        {"id":"cdc-15m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Stacks at least two small objects, like blocks"},
+        {"id":"cdc-15m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Takes a few steps on his own"},
+        {"id":"cdc-15m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Uses fingers to feed herself some food"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-18m", "ageMonths": 18, "label": "18 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/18-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-18m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Moves away from you, but looks to make sure you are close by"},
+        {"id":"cdc-18m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Points to show you something interesting"},
+        {"id":"cdc-18m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Puts hands out for you to wash them"},
+        {"id":"cdc-18m-social-04","originalCategory":"Social/Emotional","sourceStatement":"Looks at a few pages in a book with you"},
+        {"id":"cdc-18m-social-05","originalCategory":"Social/Emotional","sourceStatement":"Helps you dress him by pushing arm through sleeve or lifting up foot"},
+        {"id":"cdc-18m-language-01","originalCategory":"Language/Communication","sourceStatement":"Tries to say three or more words besides “mama” or “dada”"},
+        {"id":"cdc-18m-language-02","originalCategory":"Language/Communication","sourceStatement":"Follows one-step directions without any gestures, like giving you the toy when you say, “Give it to me.”"},
+        {"id":"cdc-18m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Copies you doing chores, like sweeping with a broom"},
+        {"id":"cdc-18m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Plays with toys in a simple way, like pushing a toy car"},
+        {"id":"cdc-18m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Walks without holding on to anyone or anything"},
+        {"id":"cdc-18m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Scribbles"},
+        {"id":"cdc-18m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Drinks from a cup without a lid and may spill sometimes"},
+        {"id":"cdc-18m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Feeds himself with his fingers"},
+        {"id":"cdc-18m-movement-05","originalCategory":"Movement/Physical Development","sourceStatement":"Tries to use a spoon"},
+        {"id":"cdc-18m-movement-06","originalCategory":"Movement/Physical Development","sourceStatement":"Climbs on and off a couch or chair without help"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-24m", "ageMonths": 24, "label": "2 years", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/2-years.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-24m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Notices when others are hurt or upset, like pausing or looking sad when someone is crying"},
+        {"id":"cdc-24m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Looks at your face to see how to react in a new situation"},
+        {"id":"cdc-24m-language-01","originalCategory":"Language/Communication","sourceStatement":"Points to things in a book when you ask, like “Where is the bear?”"},
+        {"id":"cdc-24m-language-02","originalCategory":"Language/Communication","sourceStatement":"Says at least two words together, like “More milk.”"},
+        {"id":"cdc-24m-language-03","originalCategory":"Language/Communication","sourceStatement":"Points to at least two body parts when you ask him to show you"},
+        {"id":"cdc-24m-language-04","originalCategory":"Language/Communication","sourceStatement":"Uses more gestures than just waving and pointing, like blowing a kiss or nodding yes"},
+        {"id":"cdc-24m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Holds something in one hand while using the other hand; for example, holding a container and taking the lid off"},
+        {"id":"cdc-24m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Tries to use switches, knobs, or buttons on a toy"},
+        {"id":"cdc-24m-cognitive-03","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Plays with more than one toy at the same time, like putting toy food on a toy plate"},
+        {"id":"cdc-24m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Kicks a ball"},
+        {"id":"cdc-24m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Runs"},
+        {"id":"cdc-24m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Walks (not climbs) up a few stairs with or without help"},
+        {"id":"cdc-24m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Eats with a spoon"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-30m", "ageMonths": 30, "label": "30 months", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/30-months.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-30m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Plays next to other children and sometimes plays with them"},
+        {"id":"cdc-30m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Shows you what she can do by saying, “Look at me!”"},
+        {"id":"cdc-30m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Follows simple routines when told, like helping to pick up toys when you say, “It’s clean-up time.”"},
+        {"id":"cdc-30m-language-01","originalCategory":"Language/Communication","sourceStatement":"Says about 50 words"},
+        {"id":"cdc-30m-language-02","originalCategory":"Language/Communication","sourceStatement":"Says two or more words together, with one action word, like “Doggie run”"},
+        {"id":"cdc-30m-language-03","originalCategory":"Language/Communication","sourceStatement":"Names things in a book when you point and ask, “What is this?”"},
+        {"id":"cdc-30m-language-04","originalCategory":"Language/Communication","sourceStatement":"Says words like “I,” “me,” or “we”"},
+        {"id":"cdc-30m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Uses things to pretend, like feeding a block to a doll as if it were food"},
+        {"id":"cdc-30m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Shows simple problem-solving skills, like standing on a small stool to reach something"},
+        {"id":"cdc-30m-cognitive-03","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Follows two-step instructions like “Put the toy down and close the door.”"},
+        {"id":"cdc-30m-cognitive-04","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Shows he knows at least one color, like pointing to a red crayon when you ask, “Which one is red?”"},
+        {"id":"cdc-30m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Uses hands to twist things, like turning doorknobs or unscrewing lids"},
+        {"id":"cdc-30m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Takes some clothes off by himself, like loose pants or an open jacket"},
+        {"id":"cdc-30m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Jumps off the ground with both feet"},
+        {"id":"cdc-30m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Turns book pages, one at a time, when you read to her"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-36m", "ageMonths": 36, "label": "3 years", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/3-years.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-36m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Calms down within 10 minutes after you leave her, like at a childcare drop off"},
+        {"id":"cdc-36m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Notices other children and joins them to play"},
+        {"id":"cdc-36m-language-01","originalCategory":"Language/Communication","sourceStatement":"Talks with you in conversation using at least two back-and-forth exchanges"},
+        {"id":"cdc-36m-language-02","originalCategory":"Language/Communication","sourceStatement":"Asks “who,” “what,” “where,” or “why” questions, like “Where is mommy/daddy?”"},
+        {"id":"cdc-36m-language-03","originalCategory":"Language/Communication","sourceStatement":"Says what action is happening in a picture or book when asked, like “running,” “eating,” or “playing”"},
+        {"id":"cdc-36m-language-04","originalCategory":"Language/Communication","sourceStatement":"Says first name, when asked"},
+        {"id":"cdc-36m-language-05","originalCategory":"Language/Communication","sourceStatement":"Talks well enough for others to understand, most of the time"},
+        {"id":"cdc-36m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Draws a circle, when you show him how"},
+        {"id":"cdc-36m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Avoids touching hot objects, like a stove, when you warn her"},
+        {"id":"cdc-36m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Strings items together, like large beads or macaroni"},
+        {"id":"cdc-36m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Puts on some clothes by himself, like loose pants or a jacket"},
+        {"id":"cdc-36m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Uses a fork"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-48m", "ageMonths": 48, "label": "4 years", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/4-years.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-17", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-48m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Pretends to be something else during play (teacher, superhero, dog)"},
+        {"id":"cdc-48m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Asks to go play with children if none are around, like “Can I play with Alex?”"},
+        {"id":"cdc-48m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Comforts others who are hurt or sad, like hugging a crying friend"},
+        {"id":"cdc-48m-social-04","originalCategory":"Social/Emotional","sourceStatement":"Avoids danger, like not jumping from tall heights at the playground"},
+        {"id":"cdc-48m-social-05","originalCategory":"Social/Emotional","sourceStatement":"Likes to be a “helper”"},
+        {"id":"cdc-48m-social-06","originalCategory":"Social/Emotional","sourceStatement":"Changes behavior based on where she is (place of worship, library, playground)"},
+        {"id":"cdc-48m-language-01","originalCategory":"Language/Communication","sourceStatement":"Says sentences with four or more words"},
+        {"id":"cdc-48m-language-02","originalCategory":"Language/Communication","sourceStatement":"Says some words from a song, story, or nursery rhyme”"},
+        {"id":"cdc-48m-language-03","originalCategory":"Language/Communication","sourceStatement":"Talks about at least one thing that happened during his day, like “I played soccer.”"},
+        {"id":"cdc-48m-language-04","originalCategory":"Language/Communication","sourceStatement":"Answers simple questions like “What is a coat for?” or “What is a crayon for?”"},
+        {"id":"cdc-48m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Names a few colors of items"},
+        {"id":"cdc-48m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Tells what comes next in a well-known story"},
+        {"id":"cdc-48m-cognitive-03","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Draws a person with three or more body parts"},
+        {"id":"cdc-48m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Catches a large ball most of the time"},
+        {"id":"cdc-48m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Serves herself food or pours water, with adult supervision"},
+        {"id":"cdc-48m-movement-03","originalCategory":"Movement/Physical Development","sourceStatement":"Unbuttons some buttons"},
+        {"id":"cdc-48m-movement-04","originalCategory":"Movement/Physical Development","sourceStatement":"Holds crayon or pencil between fingers and thumb (not a fist)"}
+      ]
+    },
+    {
+      "id": "cdc-checkpoint-60m", "ageMonths": 60, "label": "5 years", "sourceUrl": "https://www.cdc.gov/act-early/digital-online-checklist/5-years.html", "pagePublished": "2025-09-04", "pageUpdated": "2026-02-16", "pageReviewed": "2026-02-17",
+      "milestones": [
+        {"id":"cdc-60m-social-01","originalCategory":"Social/Emotional","sourceStatement":"Follows rules or takes turns when playing games with other children"},
+        {"id":"cdc-60m-social-02","originalCategory":"Social/Emotional","sourceStatement":"Sings, dances, or acts for you"},
+        {"id":"cdc-60m-social-03","originalCategory":"Social/Emotional","sourceStatement":"Does simple chores at home, like matching socks or clearing the table after eating"},
+        {"id":"cdc-60m-language-01","originalCategory":"Language/Communication","sourceStatement":"Tells a story she heard or made up with at least two events. For example, a cat was stuck in a tree and a firefighter saved it"},
+        {"id":"cdc-60m-language-02","originalCategory":"Language/Communication","sourceStatement":"Answers simple questions about a book or story after you read or tell it to him"},
+        {"id":"cdc-60m-language-03","originalCategory":"Language/Communication","sourceStatement":"Keeps a conversation going with more than three back-and-forth exchanges"},
+        {"id":"cdc-60m-language-04","originalCategory":"Language/Communication","sourceStatement":"Uses or recognizes simple rhymes (bat-cat, ball-tall)"},
+        {"id":"cdc-60m-cognitive-01","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Counts to 10"},
+        {"id":"cdc-60m-cognitive-02","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Names some numbers between 1 and 5 when you point to them"},
+        {"id":"cdc-60m-cognitive-03","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Uses words about time, like “yesterday,” “tomorrow,” “morning,” or “night”"},
+        {"id":"cdc-60m-cognitive-04","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Pays attention for 5 to 10 minutes during activities. For example, during story time or making arts and crafts (screen time does not count)"},
+        {"id":"cdc-60m-cognitive-05","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Writes some letters in her name"},
+        {"id":"cdc-60m-cognitive-06","originalCategory":"Cognitive (learning, thinking, problem-solving)","sourceStatement":"Names some letters when you point to them"},
+        {"id":"cdc-60m-movement-01","originalCategory":"Movement/Physical Development","sourceStatement":"Buttons some buttons"},
+        {"id":"cdc-60m-movement-02","originalCategory":"Movement/Physical Development","sourceStatement":"Hops on one foot"}
+      ]
+    }
+  ]
+}

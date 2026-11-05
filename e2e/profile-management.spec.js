@@ -45,7 +45,7 @@ test('FR-001: edit a stable profile, cancel removal, remove selected child and r
   await expect(page.getByLabel('Selected child').locator('option')).toHaveCount(2);
   await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Browse without a profile');
   await page.getByLabel('Selected child').selectOption({ label: 'Fictional sibling' });
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
 });
 
 test('LS-001: failed update preserves committed birth information and the edit draft', async ({ page }) => {
@@ -95,7 +95,7 @@ test('LS-004: unsupported newer profile data remains untouched and anonymous bro
   await create(page);
   await page.evaluate(async () => {
     await new Promise((resolve, reject) => {
-      const request = indexedDB.open('milestone-guide-profiles:local-demo', 2);
+      const request = indexedDB.open('milestone-guide-profiles:local-demo', 3);
       request.onsuccess = () => { request.result.close(); resolve(); };
       request.onerror = () => reject(request.error);
     });
@@ -106,7 +106,7 @@ test('LS-004: unsupported newer profile data remains untouched and anonymous bro
   await page.getByRole('link', { name: 'Milestones', exact: true }).click();
   await page.getByLabel('Age in months', { exact: true }).fill('6');
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   const records = await page.evaluate(async () => new Promise((resolve, reject) => {
     const request = indexedDB.open('milestone-guide-profiles:local-demo');
     request.onerror = () => reject(request.error);
@@ -137,7 +137,7 @@ test('LS-001: failed removal keeps the selected profile and its committed birth 
   await page.reload();
   await row(page, 'Fictional managed child').getByRole('button', { name: /^Use / }).click();
   await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Fictional managed child');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
 });
 
 test('LS-004: unsupported record fields are preserved rather than silently overwritten', async ({ page }) => {
@@ -147,7 +147,7 @@ test('LS-004: unsupported record fields are preserved rather than silently overw
     const { profileStore } = await import('/profile-store.js');
     const record = (await profileStore('local-demo').load()).profiles[0];
     await new Promise((resolve, reject) => {
-      const request = indexedDB.open('milestone-guide-profiles:local-demo', 1);
+      const request = indexedDB.open('milestone-guide-profiles:local-demo', 2);
       request.onerror = () => reject(request.error);
       request.onsuccess = () => {
         const db = request.result;
@@ -162,7 +162,7 @@ test('LS-004: unsupported record fields are preserved rather than silently overw
   await expect(page.getByRole('alert')).toContainText('Could not read local profiles.');
   await expect(page.getByRole('button', { name: 'Create profile', exact: true })).toBeDisabled();
   const records = await page.evaluate(async () => new Promise(resolve => {
-    const request = indexedDB.open('milestone-guide-profiles:local-demo', 1);
+    const request = indexedDB.open('milestone-guide-profiles:local-demo', 2);
     request.onsuccess = () => {
       const db = request.result;
       const read = db.transaction('profiles').objectStore('profiles').getAll();
@@ -183,6 +183,6 @@ test('FR-001: a corrected device clock leaves profile management and temporary a
   await expect(page.getByRole('heading', { name: 'Birth-based age unavailable.', exact: true })).toBeVisible();
   await page.getByLabel('Age in months', { exact: true }).fill('6');
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Fictional managed child');
 });

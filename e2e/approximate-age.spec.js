@@ -166,7 +166,7 @@ test('DM-003: reviewer zero-boundary, every-filter, draft-discard and privacy re
   await expect(page.getByLabel('Oldest possible age in months', { exact: true })).toHaveValue('71');
   await page.getByRole('link', { name: 'Milestones', exact: true }).click();
   await expect(page.getByLabel('Age in months', { exact: true })).toHaveValue('7');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Search', exact: true }).click();
   expect(await page.evaluate(async () => ({ local: localStorage.length, session: sessionStorage.length,
     databases: (await indexedDB.databases()).length }))).toEqual({ local: 0, session: 0, databases: 0 });

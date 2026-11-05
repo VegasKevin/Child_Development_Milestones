@@ -20,7 +20,7 @@ test('review FR-001: optional label and leap-day profile use completed calendar 
   await expect(page.locator('.age-tag')).toContainText('32 months');
   await page.getByLabel('Age in months', { exact: true }).fill('6');
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.locator('.age-tag')).toContainText('32 months');
 });

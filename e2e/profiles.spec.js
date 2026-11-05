@@ -20,21 +20,21 @@ test('FR-001/P1: create, persist and select multiple birth-based local profiles'
   page.on('request', request => requests.push({ url: request.url(), method: request.method(), body: request.postData() }));
   await visit(page);
   await create(page, 'Fictional <Milo> & sibling', '2026-05-15');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Fictional <Milo> & sibling');
   await page.screenshot({ path: testInfo.outputPath('profile-checklist.png'), fullPage: true });
   await create(page, 'Fictional sibling', '2026-08-15');
-  await expect(page.getByRole('heading', { name: 'Fictional 2-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '2 months', exact: true })).toBeVisible();
   await page.getByLabel('Selected child').selectOption({ label: 'Fictional <Milo> & sibling' });
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Fictional <Milo> & sibling');
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.getByLabel('Selected child').selectOption('');
   await expect(page.getByRole('heading', { name: 'Start with an age.', exact: true })).toBeVisible();
   await page.getByLabel('Age in months', { exact: true }).fill('7');
   await page.getByRole('button', { name: 'Browse milestones', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Profiles', exact: true }).click();
   await expect(page.getByRole('list', { name: 'Local child profiles' }).getByRole('button', { name: /^Use / })).toHaveCount(2);
   await page.screenshot({ path: testInfo.outputPath('profiles.png'), fullPage: true });
@@ -46,7 +46,7 @@ test('FR-001/P1: create, persist and select multiple birth-based local profiles'
 test('LS-001: an aborted transaction preserves existing profiles and unsaved input', async ({ page }) => {
   await visit(page);
   await create(page, 'Fictional existing child', '2026-05-15');
-  await page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true }).waitFor();
+  await page.getByRole('heading', { name: '6 months', exact: true }).waitFor();
   await page.evaluate(() => {
     const add = IDBObjectStore.prototype.add;
     IDBObjectStore.prototype.add = function (...args) {
@@ -77,7 +77,7 @@ test('FR-014: profile entry works with keyboard and narrow enlarged text', async
   await page.getByRole('button', { name: 'Create profile', exact: true }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'Milestones', exact: true })).toBeFocused();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Profiles', exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('profiles-enlarged.png'), fullPage: true });
@@ -105,7 +105,7 @@ test('FR-001/LS-001: invalid or unavailable storage preserves form and does not 
     sessionStorage.setItem('synthetic-storage-recovered', 'yes');
   });
   await page.getByRole('button', { name: 'Create profile', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   await page.reload();
   await expect(page.getByLabel('Selected child').locator('option')).toHaveCount(2);
 });
@@ -120,14 +120,14 @@ test('FR-001/DM-004: a real browser restart retains selection and recalculates l
     await page.clock.install({ time: initialTime });
     await page.goto('http://127.0.0.1:4174/');
     await create(page, 'Fictional returning child', '2026-05-16');
-    await expect(page.getByRole('heading', { name: 'Fictional 4-month checklist', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '4 months', exact: true })).toBeVisible();
     await context.close();
     context = await chromium.launchPersistentContext(userDataDir, options);
     page = context.pages()[0];
     await page.clock.install({ time: new Date('2026-11-16T17:00:00Z') });
     await page.goto('http://127.0.0.1:4174/');
     await expect(page.getByLabel('Selected child').locator('option:checked')).toHaveText('Fictional returning child');
-    await expect(page.getByRole('heading', { name: 'Fictional 6-month checklist', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '6 months', exact: true })).toBeVisible();
   } finally {
     await context?.close();
   }

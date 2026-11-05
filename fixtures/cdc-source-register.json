@@ -1,0 +1,33 @@
+{
+  "edition": "February 2022 revised milestone checklists",
+  "sourceObservedAt": "2026-11-05",
+  "authority": {
+    "organization": "Centers for Disease Control and Prevention",
+    "program": "Learn the Signs. Act Early.",
+    "contentOffice": "National Center on Birth Defects and Developmental Disabilities"
+  },
+  "reuse": {
+    "status": "CDC states most website information is public domain; check individual page and asset notices before reuse.",
+    "attributionRequired": true,
+    "nonEndorsementRequired": true,
+    "substantiveContentMustRemainUnchanged": true,
+    "mustSayAvailableFromAgencyAtNoCharge": true,
+    "linkDirectlyAndReviewUpdates": true,
+    "excludeThirdPartyMaterialAndAgencyMarks": true,
+    "policyUrl": "https://www.cdc.gov/other/agencymaterials.html"
+  },
+  "checkpoints": [
+    { "ageMonths": 2, "label": "2 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/2-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 4, "label": "4 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/4-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 6, "label": "6 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/6-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 9, "label": "9 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/9-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 12, "label": "1 year", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/1-year.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 15, "label": "15 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/15-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 18, "label": "18 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/18-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 24, "label": "2 years", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/2-years.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 30, "label": "30 months", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/30-months.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 36, "label": "3 years", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/3-years.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 48, "label": "4 years", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/4-years.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] },
+    { "ageMonths": 60, "label": "5 years", "originalUrl": "https://www.cdc.gov/act-early/digital-online-checklist/5-years.html", "originalCategories": ["Social/Emotional", "Language/Communication", "Cognitive (learning, thinking, problem-solving)", "Movement/Physical Development"] }
+  ]
+}
