@@ -1,5 +1,38 @@
 # Local milestone guide demo
 
+## FR-001 local profile goal
+
+The active work connects local child profiles to the existing age engine while preserving temporary browsing.
+Slices proceed sequentially, each with a failing browser case, implementation, required checks, a fresh review and recorded evidence.
+
+| Slice | Acceptance scope | Status |
+| --- | --- | --- |
+| P1: persistent exact-birth profiles | Create/select multiple profiles, persist only after an atomic commit, restore the selected child and derive age on reopening, recover from unavailable storage. | Complete for the local demo. |
+| P2: month-based ages and session overrides | Birth month/year input, younger-checkpoint default and labeled preview, temporary corrected age with unchanged profile/child association, calendar refresh. | Not started. |
+| P3: profile management and completion audit | Edit/remove profiles, preserve records/drafts on failed writes, handle stale state safely, verify FR-001 criteria across complete flows. | Not started. |
+
+This remains a loopback-only local demo.
+Its explicit local-demo storage namespace is separate from guide content and is not a substitute for verified-adult isolation in a deployed application.
+People using the same browser profile can access its local demo profiles; clearing site data removes them.
+Production identity, access expiry, backup, favorites and practice history remain outside this FR-001 goal.
+
+### P1 completion evidence
+
+The initial browser case failed at the missing Profiles navigation link before implementation.
+The implementation adds optional exact-date profiles with opaque IDs, escaped display labels, an explicit local-demo IndexedDB namespace and transactional profile/selection writes.
+The existing age engine derives the selected child's age on load rather than persisting a month count.
+Ten profile browser checks pass across desktop and phone layouts, including a real disk-backed Chrome restart, unavailable storage recovery, an abort after an IndexedDB request succeeds, retained drafts and keyboard entry at 320 pixels with 200% text.
+The 46 existing browser checks passed in the initial full run; the corrected profile recovery injection and added profile cases passed in the focused rerun.
+All 39 unit checks and `npm.cmd run check` passed.
+Desktop, phone and enlarged-text profile screenshots were inspected.
+The fresh independent requirements-first review found that retrying a failed profile read cleared the form draft.
+The controller now retains that draft until creation commits; the reviewer's failing case passes after the fix.
+Eight independent desktop/mobile checks cover blank labels, leap-day age calculation, aborted selection writes, read-retry draft retention, concurrent creation, inert hostile labels, network/log privacy and narrow enlarged-text date entry.
+After the draft fix, the full browser suite passed 64/64 cases with no retries.
+The fresh review found no remaining material P1 issues.
+
+## Run locally
+
 Run `npm.cmd run dev` on Windows, or `npm run dev` elsewhere, from the repository root with Node.js 22.8 or later.
 Open `http://127.0.0.1:4173` in a browser.
 The application has no runtime dependencies; the server binds only to loopback and serves an explicit list of demo files.
@@ -20,7 +53,8 @@ Materials, steps, suitability and safety notes are visible on activity details; 
 
 The implemented slices cover temporary-age browsing and the linked checklist/category/behavior/activity path in FR-001/002/003/004/006, standalone discovery in FR-004/005, plus DM-A01/A04/A08 and responsive/keyboard aspects of FR-014.
 These are partial requirements checks using synthetic content, not completion of the full product requirements.
-Profiles, saving, logging practice, persistence, offline access, catalog updates and production hosting remain separate work.
+Local profile integration is in progress as recorded above.
+Favorites, logging practice, offline access, catalog updates and production hosting remain separate work.
 The local demo does not change Sites or its invitation policy.
 
 ## Activity library
