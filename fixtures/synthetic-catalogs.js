@@ -53,8 +53,9 @@ export const releaseOne = {
 export const releaseTwo = {
   ...structuredClone(releaseOne),
   id: 'synthetic-release-2', publishedAt: '2026-01-02T12:00:00Z',
-  summary: 'Fictional safety withdrawal of the shared activity.',
-  activities: structuredClone(releaseOne.activities.filter(item => item.id !== 'activity-shared')),
+  summary: 'Fictional safety withdrawal of the shared activity and title revision of the second activity.',
+  activities: structuredClone(releaseOne.activities.filter(item => item.id !== 'activity-shared'))
+    .map(item => ({ ...item, revision: item.revision + 1, title: 'Fictional second activity (revised title)' })),
   links: structuredClone(releaseOne.links.filter(link => link.activityId !== 'activity-shared')),
   retired: [{ id: 'activity-shared', type: 'activity', label: 'Fictional shared activity', disposition: 'withdrawn' }],
 };
