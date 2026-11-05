@@ -58,6 +58,16 @@ The synthetic candidate has no personal-record UI, so this test cannot establish
 The [hosted verification procedure](hosting/sites-candidate/access-verification.md) retains these deferred cases for a later slice.
 No test email address or credential is recorded in this repository.
 
+## Fresh desktop viewer access slice
+
+Status: closed with an inconclusive result; further login verification is deferred at the user's request.
+The tester attempted the desktop check using three incognito tabs and reported that both protected resources did not load before or after sign-in in the third tab.
+The exact error, completed Site callback, selected account, browser version, and whether the resource pages were reloaded after sign-in are not yet confirmed.
+Record this attempt as inconclusive rather than a successful second-device verification or proof of a specific session defect.
+No authentication or audience configuration was changed in response.
+No additional manual login tests are requested for this slice.
+POC-01/02 remain unverified, and Sites remains an evaluation candidate rather than a selected deployment platform.
+
 ## Local fixture preparation
 
 The two fictional catalog releases in `fixtures/synthetic-catalogs.js` now satisfy the release-content setup in [the evaluation plan](deployment-evaluation.md).
@@ -98,5 +108,7 @@ The phone viewer check is recorded above; the remaining evaluation needs an inde
 Do not record credentials, email challenge contents or unredacted personal information in this repository.
 Do not select a candidate while any mandatory check remains failed or unverified.
 
-A follow-up access slice can exercise a fresh desktop viewer session, uninvited-account denial and challenge validity without repeating the completed phone observation.
+Further hosting and login evaluation is deferred while product work proceeds independently of a hosting choice.
+The proposed next product slice is a local runnable guide using the synthetic catalog for age browsing, milestone details and linked activities.
+Resume the deferred access checks only when hosting evaluation becomes relevant again.
 No production platform or paid service commitment has been made.
