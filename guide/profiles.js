@@ -13,7 +13,8 @@ export function localProfiles(onChange) {
   let snapshot = { profiles: [], selectedId: null };
   let loadFailed = false;
   let busy = false;
-  let draft = { label: '', birth: '' };
+  const emptyDraft = () => ({ label: '', birth: '', mode: 'date' });
+  let draft = emptyDraft();
   async function load() {
     try { snapshot = await store.load(); loadFailed = false; }
     catch { loadFailed = true; }
@@ -28,8 +29,10 @@ export function localProfiles(onChange) {
       <p>Profiles stay in this browser. People using this browser profile can see them. Clearing site data removes them; another device has its own profiles.</p>
       ${loadFailed ? '<p role="alert">Could not read local profiles. Retry before making changes.</p><button id="retry-profiles" class="clear-button">Retry loading profiles</button>' : ''}
       <div class="browse-layout"><section class="age-panel profile-form-panel"><h2>Add a child</h2><p>A nickname is enough. No legal name is needed.</p>
-      <form id="profile-form" novalidate><label for="profile-label">Display label (optional)</label><input id="profile-label" maxlength="80" autocomplete="off" value="${escape(draft.label)}">
-      <label for="profile-birth">Birth date</label><input id="profile-birth" type="date" max="${today()}" value="${escape(draft.birth)}">
+      <form id="profile-form" novalidate><label for="birth-mode">Birth information</label><select id="birth-mode"><option value="date" ${draft.mode === 'date' ? 'selected' : ''}>Exact birth date</option><option value="month" ${draft.mode === 'month' ? 'selected' : ''}>Birth month and year</option></select>
+      <label for="profile-label">Display label (optional)</label><input id="profile-label" maxlength="80" autocomplete="off" value="${escape(draft.label)}">
+      <label for="profile-birth">${draft.mode === 'month' ? 'Birth month and year' : 'Birth date'}</label><input id="profile-birth" type="${draft.mode}" max="${draft.mode === 'month' ? today().slice(0, 7) : today()}" value="${escape(draft.birth)}">
+      ${draft.mode === 'month' ? '<p class="form-help">No day is assumed. The checklist uses the younger possible age.</p>' : ''}
       <p id="profile-error" class="form-error" role="alert"></p><button class="primary" ${loadFailed ? 'disabled' : ''}>Create profile</button></form></section>
       <section><h2>Your children</h2><ul class="profile-list" aria-label="Local child profiles">${snapshot.profiles.map(profile => `<li><h3>${escape(profile.label)}</h3><button class="clear-button" data-use-profile="${escape(profile.id)}">Use ${escape(profile.label)}</button></li>`).join('')}</ul>${snapshot.profiles.length ? '' : '<p>No profiles yet. You can also browse with a temporary age.</p>'}<a href="#/">Back to milestones</a></section></div>`;
   }
@@ -40,7 +43,7 @@ export function localProfiles(onChange) {
     controls.forEach(control => { control.disabled = true; });
     try {
       snapshot = await action();
-      if (clearDraft) draft = { label: '', birth: '' };
+      if (clearDraft) draft = emptyDraft();
       onChange();
     } catch {
       errorElement.textContent = message;
@@ -51,7 +54,13 @@ export function localProfiles(onChange) {
   }
   function bind() {
     document.querySelector('#profile-form')?.addEventListener('input', () => {
-      draft = { label: document.querySelector('#profile-label').value, birth: document.querySelector('#profile-birth').value };
+      draft = { ...draft, label: document.querySelector('#profile-label').value, birth: document.querySelector('#profile-birth').value };
+    });
+    document.querySelector('#birth-mode')?.addEventListener('change', event => {
+      const mode = event.target.value;
+      draft = { ...draft, mode, birth: mode === 'month' ? draft.birth.slice(0, 7) : '' };
+      onChange(false, false);
+      document.querySelector('#birth-mode').focus();
     });
     document.querySelector('#retry-profiles')?.addEventListener('click', async () => { await load(); onChange(false); });
     document.querySelector('#selected-child')?.addEventListener('change', event => {
@@ -67,12 +76,13 @@ export function localProfiles(onChange) {
       if (busy || loadFailed) return;
       const value = document.querySelector('#profile-birth').value;
       const error = document.querySelector('#profile-error');
-      const birth = Object.fromEntries(['year', 'month', 'day'].map((key, index) => [key, Number(value.split('-')[index])]));
+      const keys = draft.mode === 'month' ? ['year', 'month'] : ['year', 'month', 'day'];
+      const birth = Object.fromEntries(keys.map((key, index) => [key, Number(value.split('-')[index])]));
       try {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error();
+        if (!(draft.mode === 'month' ? /^\d{4}-\d{2}$/ : /^\d{4}-\d{2}-\d{2}$/).test(value)) throw new Error();
         browseChecklists({ profile: { birth }, today: today() }, []);
       } catch {
-        error.textContent = 'Enter a valid birth date that is not in the future.';
+        error.textContent = draft.mode === 'month' ? 'Enter a valid birth month and year that is not in the future.' : 'Enter a valid birth date that is not in the future.';
         document.querySelector('#profile-birth').focus();
         return;
       }

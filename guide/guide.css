@@ -73,7 +73,7 @@ main { max-width: 1120px; padding: 1.5rem 2rem 4rem; margin: auto; }
 .browse-layout { display: grid; grid-template-columns: minmax(0, 300px) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
 .age-panel { background: var(--lilac); padding: 1.75rem; border-radius: 1.6rem; }
 .age-panel h2 { margin-bottom: .4rem; }
-.profile-form-panel input, #selected-child { width: 100%; min-width: 0; padding: .65rem; border: 2px solid var(--ink); border-radius: .7rem; background: white; color: var(--ink); margin-bottom: 1rem; }
+.profile-form-panel input, .profile-form-panel select, #selected-child { width: 100%; min-width: 0; padding: .65rem; border: 2px solid var(--ink); border-radius: .7rem; background: white; color: var(--ink); margin-bottom: 1rem; }
 .profile-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
 .profile-list li { padding: 1.5rem; background: var(--lime); border-radius: 1.5rem; margin: 0; }
 .profile-list li:nth-child(even) { background: #73c7f1; }

@@ -8,7 +8,7 @@ Slices proceed sequentially, each with a failing browser case, implementation, r
 | Slice | Acceptance scope | Status |
 | --- | --- | --- |
 | P1: persistent exact-birth profiles | Create/select multiple profiles, persist only after an atomic commit, restore the selected child and derive age on reopening, recover from unavailable storage. | Complete for the local demo. |
-| P2: month-based ages and session overrides | Birth month/year input, younger-checkpoint default and labeled preview, temporary corrected age with unchanged profile/child association, calendar refresh. | Not started. |
+| P2: month-based ages and session overrides | Birth month/year input, younger-checkpoint default and labeled preview, temporary corrected age with unchanged profile/child association, calendar refresh. | Complete for the local demo. |
 | P3: profile management and completion audit | Edit/remove profiles, preserve records/drafts on failed writes, handle stale state safely, verify FR-001 criteria across complete flows. | Not started. |
 
 This remains a loopback-only local demo.
@@ -30,6 +30,22 @@ The controller now retains that draft until creation commits; the reviewer's fai
 Eight independent desktop/mobile checks cover blank labels, leap-day age calculation, aborted selection writes, read-retry draft retention, concurrent creation, inert hostile labels, network/log privacy and narrow enlarged-text date entry.
 After the draft fix, the full browser suite passed 64/64 cases with no retries.
 The fresh review found no remaining material P1 issues.
+
+### P2 completion evidence
+
+The first P2 browser case failed because the birth-information precision control did not exist.
+Profile creation now accepts an exact date or a birth month/year; switching from month precision to exact precision requires entering a day.
+Month-based ages retain their approximate range and use the lower age for the applicable checkpoint, with a labeled next-checklist preview when the range crosses it.
+Preview navigation retains the effective age and offers a return to the age result.
+Temporary age entry keeps the selected child, offers Use birth-based age and clears on reload or child change without changing stored birth information.
+The device-local day is checked every minute and on focus/visibility return; birth-based content refreshes when it changes, preserving an unsubmitted age input.
+The 36 affected browser checks passed across desktop/mobile, followed by 10/10 final P2 checks including month-input validation.
+The month-based dashboard screenshots were inspected.
+All 39 unit checks and `npm.cmd run check` passed.
+The fresh reviewer derived six additional scenarios and all 12 desktop/mobile checks passed, with no material findings.
+Those cases cover month-end range collapse, exact-date month-end clamping in detail, override/preview retention through a local-day change, failed month-save draft recovery, invalid corrected ages and native month entry at 320 pixels with 200% text.
+The native month-entry screenshots were inspected and the independent cases are retained in `e2e/profile-age-review.spec.js`.
+The final combined run passed all 50 affected browser cases without retries.
 
 ## Run locally
 

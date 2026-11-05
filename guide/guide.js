@@ -7,9 +7,8 @@ import { localProfiles, today } from '/profiles.js';
 const app = document.querySelector('#app');
 let age = null;
 let preview = false;
-const profiles = localProfiles((goHome = true) => {
-  age = null;
-  preview = false;
+const profiles = localProfiles((goHome = true, resetAge = true) => {
+  if (resetAge) { age = null; preview = false; }
   if (goHome && location.hash !== '#/') location.hash = '#/';
   else render(true);
 });
@@ -27,13 +26,18 @@ function context() {
   const profile = profiles.selected();
   const selection = profile ? browseChecklists({ profile, today: today(), ...(age === null ? {} : { temporaryAgeMonths: age }) }, catalog.checkpoints)
     : age === null ? null : selectChecklist(age, catalog.checkpoints);
-  const checkpoint = selection?.checklist ?? (preview ? selection?.preview?.checklist : null);
+  const checkpoint = preview ? selection?.preview?.checklist : selection?.checklist;
   return { selection, checkpoint };
 }
 
 function ageLabel(checkpoint) {
-  const months = age ?? context().selection?.age?.minMonths;
-  return preview ? `${checkpoint.ageMonths}-month checklist preview` : `${profiles.selected() ? `${profiles.selected().label}: ` : 'Browsing at '}${months} ${months === 1 ? 'month' : 'months'}`;
+  const selection = context().selection;
+  const months = age ?? selection?.age?.minMonths;
+  const profile = profiles.selected();
+  if (!profile) return preview ? `${checkpoint.ageMonths}-month checklist preview` : `Browsing at ${months} ${months === 1 ? 'month' : 'months'}`;
+  const ageText = age !== null ? `temporary age ${months} months` : selection.age.approximate
+    ? `approximately ${selection.age.minMonths} to ${selection.age.maxMonths} months` : `${months} ${months === 1 ? 'month' : 'months'}`;
+  return `${profile.label}: ${ageText}${preview ? `; ${checkpoint.ageMonths}-month checklist preview` : ''}`;
 }
 
 function contextBar(checkpoint) {
@@ -131,15 +135,19 @@ function dashboard() {
         <p>${escape(selection.message)}</p>${selection.preview ? '<button class="preview-button" id="preview">Preview the 2-month checklist</button>' : '<p>Choose an age from 2 to 71 months to browse this demo.</p>'}`;
     }
   }
+  if (selection?.preview && selection.checklist && !preview) content += `<p><button class="preview-button" id="preview">Preview the ${selection.preview.checklist.ageMonths}-month checklist</button></p>`;
+  if (preview) content += '<p><button class="clear-button" id="return-age-result">Return to age result</button></p>';
   return `${heading('Milestones')}<p class="lead">An age. A checklist. One thing to explore.</p>
     <div class="browse-layout"><section class="age-panel" aria-labelledby="age-heading"><div class="panel-symbol" aria-hidden="true">✳</div>
       <h2 id="age-heading">Browse by age</h2><p>No child profile needed.</p>${profiles.selector()}
-      ${profiles.selected() && checkpoint ? `<p class="age-tag">${escape(ageLabel(checkpoint))}</p>` : ''}
+      ${profiles.selected() ? `<p class="age-tag">${escape(ageLabel(checkpoint))}</p>` : ''}
+      ${profiles.selected() ? '<p>Enter a temporary age below to browse with a corrected age. The selected child and saved birth information stay the same.</p>' : ''}
       <form id="age-form" novalidate><label for="age">Age in months</label>
         <div class="age-input"><input id="age" name="age" type="number" inputmode="numeric" min="0" step="1" value="${age ?? ''}" aria-describedby="age-help age-error"><span>months</span></div>
         <p class="form-help" id="age-help">Use whole months, for example 6.</p><p id="age-error" class="form-error" role="alert"></p>
         <button class="primary" type="submit">Browse milestones</button></form>
-      <p class="temporary-note">This age is temporary. Reloading starts fresh.</p></section>
+      ${profiles.selected() && age !== null ? '<p><button class="clear-button" id="birth-based-age">Use birth-based age</button></p>' : ''}
+      <p class="temporary-note">${profiles.selected() ? 'Temporary ages clear on reload or when you change children.' : 'This age is temporary. Reloading starts fresh.'}</p></section>
       <section class="checklist-panel" aria-label="Checklist">${content}
         <p class="catalog-note">Demo checkpoints: 2, 4, 6 and 60 months.<br>This is an incomplete fictional catalog.</p></section></div>`;
 }
@@ -220,6 +228,8 @@ function render(focusResult = false) {
     render(true);
   });
   document.querySelector('#preview')?.addEventListener('click', () => { preview = true; render(true); });
+  document.querySelector('#return-age-result')?.addEventListener('click', () => { preview = false; render(true); });
+  document.querySelector('#birth-based-age')?.addEventListener('click', () => { age = null; preview = false; render(true); });
   function applyLibraryFilters(skill = libraryFilters.skill) {
     const input = document.querySelector('#filter-age');
     const value = input.value.trim();
@@ -279,6 +289,24 @@ try {
   });
   render();
   window.addEventListener('hashchange', () => render());
+  let calendarDay = today();
+  const refreshCalendar = () => {
+    const nextDay = today();
+    if (calendarDay === nextDay) return;
+    calendarDay = nextDay;
+    if (profiles.selected() && age === null) preview = false;
+    const route = location.hash.slice(1).split('/').filter(Boolean)[0];
+    if (profiles.selected() && !['profiles', 'library'].includes(route)) {
+      const draftAge = document.querySelector('#age')?.value;
+      const focusedId = document.activeElement?.id;
+      render();
+      if (draftAge !== undefined) document.querySelector('#age').value = draftAge;
+      if (focusedId) document.getElementById(focusedId)?.focus();
+    }
+  };
+  setInterval(refreshCalendar, 60_000);
+  window.addEventListener('focus', refreshCalendar);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshCalendar(); });
 } catch {
   app.innerHTML = '<main><h1>Demo content is unavailable</h1><p>The fictional catalog could not be loaded. Reload to try again.</p></main>';
 }
