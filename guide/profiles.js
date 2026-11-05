@@ -31,7 +31,7 @@ export function localProfiles(onChange) {
   }
   function screen() {
     return `<h1 tabindex="-1" data-view-title>Local child profiles</h1><p class="lead">Pick up where you left off with a birth-based age.</p>
-      <p>Profiles stay in this browser. People using this browser profile can see them. Clearing site data removes them; another device has its own profiles.</p>
+      <p>Profiles stay in this browser. People using this browser profile can see them. Clearing site data removes them; another device has its own profiles.</p><p><a href="#/backup">Backup and restore</a></p>
       ${loadFailed ? '<p role="alert">Could not read local profiles. Retry before making changes. Existing records have not been changed.</p>' : ''}<p><button id="retry-profiles" class="clear-button">${loadFailed ? 'Retry loading profiles' : 'Reload profiles'}</button></p>
       ${removing ? `<section class="remove-profile" aria-label="Remove local profile"><h2>Remove ${escape(removing.label)}?</h2><p>This removes this child's profile, saved items, and practice history from this browser. Other children's records stay available.</p><button id="confirm-remove" class="primary" ${loadFailed ? 'disabled' : ''}>Remove profile from this browser</button><button id="keep-profile" class="clear-button">Keep profile</button></section>` : ''}
       <div class="browse-layout"><section class="age-panel profile-form-panel"><h2>${editing ? 'Edit child' : 'Add a child'}</h2><p>A nickname is enough. No legal name is needed.</p>

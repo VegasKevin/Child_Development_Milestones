@@ -27,14 +27,14 @@ Fresh independent review reproduced malformed-record cases, verified the identit
 | C1: source-linked CDC catalog draft | Record all CDC checklist behavior statements, original categories, checkpoint ages, source URLs, page dates, and reuse notes. | Complete as a draft; human editorial review remains pending. |
 | C2: catalog coverage and traceability checks | Validate checkpoint coverage, IDs, source links, category provenance, and content integrity in the routine content check. | Complete. |
 | C3: connect the CDC catalog to the guide | Render source-backed CDC records in the local guide while keeping the pending editorial status clear and authored content separate. | Complete for the local demo; human editorial approval remains pending. |
-| C4: child-specific saved/practice records and backup | Implement favorites and practice history, then versioned encrypted export/restore, under the local-record requirements. | In progress: favorites and practice history are verified complete; encrypted export/restore remain. |
+| C4: child-specific saved/practice records and backup | Implement favorites and practice history, then versioned encrypted export/restore, under the local-record requirements. | Complete for the local demo, including password-protected backup and validated atomic restore. |
 
 ## Current work checkpoint - 2026-11-05
 
-The active goal is to complete C1 through C4 in order, with a failing end-to-end case, implementation, required checks, fresh independent review, and updated progress evidence for each slice.
+The goal to complete C1 through C4 is verified complete for the local demo, with reproduced failures, implementations, required checks, fresh independent reviews, resolved findings, and progress evidence.
 C1 and C2 are verified complete as engineering work, while CDC milestone wording, parent-friendly mappings, explanations, and activities remain pending human editorial approval.
 C3 is verified complete for the local demo after passing the desktop/mobile browser suite and fresh independent review.
-C4 is in progress; its favorites and practice-history vertical behaviors are verified complete, and encrypted backup/restore remain.
+C4 is verified complete, including favorites, practice history, encrypted backup and validated restore.
 The favorites step was verified after two fresh reviews; it labels safety-withdrawn and retired references using catalog tombstones, isolates favorites by child, and removes personal records atomically when a profile is deleted.
 Practice history now records a selected child's dated activity session with optional difficulty and notes, then shows the child's activity-specific history newest first.
 Date-only sessions are supported, records persist after reload, and the UI does not represent practice as a developmental score or completion status.
@@ -72,14 +72,42 @@ The final fresh review confirmed the scope coverage and found no remaining mater
 
 Files changed in the completed practice-history slice are `guide/guide.js`, `guide/guide.css`, `src/personal-records.js`, `e2e/practice-records.spec.js`, `e2e/saved-records.spec.js`, and this checkpoint in `guide/README.md`.
 The C4 favorites and practice-history sub-slices have no known unresolved implementation findings.
-The remaining C4 slice is encrypted backup and restore, with the password requirement recorded in DEC-008; the concrete encrypted format and compatibility fixtures must be specified and tested before implementation.
+The final C4 behavior implements FR-010, LS-003/004, DM-007, DEC-008, IF-007 and Flow P8.
+Its first E2E failed because the normal Profiles flow had no Backup and restore link.
+The versioned format is documented in `local-storage.md`; Web Crypto uses PBKDF2-SHA256 and AES-256-GCM with fresh salt and IV per export.
+An independently produced Node crypto fixture is in `fixtures/backup-v1.json`, with the synthetic password `fixture password`; `node scripts/create-backup-fixture.mjs` reproduces it.
+The consistent snapshot contains profiles, typed favorites and practice entries, excluding selection, temporary age, catalog content, access state and passwords.
+Restore validates authentication, version, exact record shapes, dates, uniqueness and child references before previewing incoming and current counts plus unresolved labels.
+Confirmation replaces all personal collections and clears selection in one IndexedDB transaction.
+Cancellation, wrong passwords, corrupt or unsupported input, and interrupted writes preserve current records.
+The first fresh review found an unrestorable large backup and missing recheck of records changed after preview.
+Both defects were reproduced by failing Chrome E2E cases, then resolved with linear base64 validation and a baseline comparison inside the replacement transaction before any clearing.
+A conflict invalidates confirmation and requires a new preview reflecting current replacement impact.
+The final fresh review found no material findings and independently decrypted a production export with Node crypto, including a password with a trailing space.
+The focused backup browser cases passed 8/8 across desktop and mobile, including 1,000 long-note sessions, two-tab conflicts and renewed confirmation, cancellation, rollback, unknown content references, and 320px width with 200% text.
+The mobile preview screenshot was inspected without clipping or overlap.
+The full final browser suite passed 134/134, all 51 unit tests passed, both catalog checks passed, and `git diff --check` passed.
+Files changed for backup are `src/backup.js`, `guide/backup-store.js`, `guide/backup.js`, `guide/guide.js`, `guide/guide.css`, `guide/profile-store.js`, `guide/profiles.js`, `src/personal-records.js`, `scripts/serve-guide.mjs`, `scripts/create-backup-fixture.mjs`, `fixtures/backup-v1.json`, `test/backup.test.js`, `e2e/backup.spec.js`, `local-storage.md`, and this checkpoint.
+
+### Completion audit
+
+| Scope | Current authoritative evidence | Result |
+| --- | --- | --- |
+| C1 source catalog draft | CDC source register and draft contain all 12 ages and 159 statements with original categories, direct source URLs, page dates and reuse statements; source-register E2E checks inventory and reviewed fingerprints. | Verified as an engineering draft; human editorial approval pending. |
+| C2 validation | `src/cdc-catalog-validation.js`, mutation-focused unit cases and routine `npm.cmd run check` enforce age coverage, identities, source links, categories, wording fingerprints and attribution. | Verified. |
+| C3 guide integration | Normal age/category/detail route renders CDC statements and source links, with pending review labeling; `e2e/cdc-guide.spec.js` and guide/profile browser cases pass. | Verified for the local demo. |
+| C4 local records and backup | Saved and practice E2E cases verify isolation, persistence, withdrawal and deletion; backup E2E/unit cases verify independent compatibility, encrypted export, strict validation, preview, conflict detection and atomic replacement. | Verified for the local demo. |
+
+No unfinished implementation or unresolved material review findings remain within these four slices.
+Human clinical/editorial approval, authored activity coverage, production hosting/access enforcement and deployed offline caching remain separate work and are not represented as completed by this checkpoint.
 
 Key decisions are to use original CDC categories, avoid unreviewed explanations or activities, preserve the loopback no-connect policy, and keep fictional Search content visibly identified.
 Favorites use opaque stable content IDs plus the saved display label and are unique per child, content type, and content ID.
 Profile removal must delete that child's favorites and practice entries in the same IndexedDB transaction so it cannot leave dangling personal records.
 The Saved screen and practice form follow the supplied behavior-list and Log practice references, existing palette, compact editorial rows, and single-column phone layout.
-The latest verification passed `npx.cmd playwright test` at 126/126 desktop/mobile cases, `npm.cmd test` at 48/48, `npm.cmd run check` through both the synthetic and CDC stages, and `git diff --check`.
-The exact next step is to read FR-009/FR-010, DEC-008, and Flow P8, then write a failing E2E case for password-protected, versioned backup export and validated restore before selecting the encrypted format and compatibility fixtures.
+The latest verification passed `npx.cmd playwright test` at 134/134 desktop/mobile cases, `npm.cmd test` at 51/51, `npm.cmd run check` through both the synthetic and CDC stages, and `git diff --check`.
+There is no next implementation step within this four-slice goal.
+For future product work, begin with human editorial review of the CDC draft and the separately documented activity/publication requirements, or the deployment/access evaluation when that direction is selected.
 
 ## FR-001 local profile goal
 

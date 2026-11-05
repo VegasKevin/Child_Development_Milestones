@@ -1,6 +1,6 @@
 const supportedTypes = new Set(['milestone', 'activity']);
 
-function validateReference(reference) {
+export function validateReference(reference) {
   if (!reference || Object.keys(reference).sort().join(',') !== 'childId,contentId,label,type') {
     throw new TypeError('Invalid favorite record shape.');
   }
@@ -16,7 +16,7 @@ function validDate(value) {
   return Number.isFinite(date.valueOf()) && date.toISOString().slice(0, 10) === value;
 }
 
-function validatePracticeEntry(entry) {
+export function validatePracticeEntry(entry) {
   if (!entry || typeof entry !== 'object') throw new TypeError('Invalid practice entry.');
   const required = ['activityId', 'activityRevision', 'activityTitle', 'childId', 'id', 'practiceDate'];
   const actual = Object.keys(entry);

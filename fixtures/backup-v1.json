@@ -1,0 +1,9 @@
+{
+  "format": "milestone-guide-backup",
+  "version": 1,
+  "suite": "PBKDF2-SHA256-AES256-GCM",
+  "iterations": 600000,
+  "salt": "AAECAwQFBgcICQoLDA0ODw==",
+  "iv": "EBESExQVFhcYGRob",
+  "ciphertext": "m72JJbjliqraFkeOLNj7ChOhizukTh8mecjeNr2/chhwOj6X3UvfZ5rPexFmmltOq3KWigPky9DzJKDZIXbNPiysD+/JKzHWtKFVXoFIOFEOlsTr502v8FNa49TOOivGNWHog/KSlsRu07iFXWiRTDNvLN0kab4Rsfl1ifwKx+yTeefS09VKZCdldZziqFRJzjGIB1/XdHFeODSwsX49uxPtooBqLz7972XGp12kOue3IYe6uoMk45GW5/+6gqfX+Ij6n6fzBMtrUA9NcCLcn+ep+lQl0zhYe4iUJfRWPu5iW+PNLl2rL8eQ196aYRFveW7ohkjZw4nEj0zK9L4h+weQowPRh4ifE18TgvLSWkIl24LQ/RgbgYTnMgyvXhLlhZM293jPfd5+lUxpWS0AcWM8+pMqUsfi+Nyib2xVkXP5A9tHbcQ+eU4AXiCKycJvL0Wr0bloxkGXnJdEy5Bf37VR+L0BRyq7mFP1iLvyxbwTNy61dO21qevdwg1D7PoekC0+dx0ikYD5ALJcidGoR6dKigAfMsfLIzSb/avkgZo7IKqPn8HY4hk5vxalRvgEnSn4HQAfz3q4VNnv8UwCq7YUZeWfu6OSEZbBXVjaIyaSSelQoWi38iEKKoeIT7USX42mpw=="
+}

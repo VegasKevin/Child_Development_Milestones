@@ -144,6 +144,8 @@ label { font-weight: bold; display: block; margin-bottom: .5rem; }
 .practice-form label { font-weight: bold; }
 .practice-form input, .practice-form select, .practice-form textarea { width: 100%; min-width: 0; padding: .7rem .8rem; border: 2px solid #676660; border-radius: .6rem; background: white; color: var(--ink); }
 .practice-form textarea { resize: vertical; }
+.backup-section { max-width: 760px; margin: 2rem 0; }
+#restore-preview { margin-top: 1.5rem; }
 .practice-form .primary { margin-top: .4rem; min-height: 48px; }
 .practice-history { max-width: 760px; margin: 1.8rem 0; padding-top: 1.2rem; border-top: 1px solid #d6d4ce; }
 .practice-list { max-width: 760px; padding-left: 1.2rem; }

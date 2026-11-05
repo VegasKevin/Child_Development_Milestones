@@ -5,6 +5,7 @@ import { selectChecklist } from '/src/checklist-selection.js';
 import { browseChecklists } from '/src/age-browsing.js';
 import { personalRecords } from '/src/personal-records.js';
 import { localProfiles, today } from '/profiles.js';
+import { backupController } from '/backup.js';
 
 const app = document.querySelector('#app');
 const cdcCategoryIds = new Map([
@@ -79,6 +80,12 @@ const profiles = localProfiles(async (goHome = true, resetAge = true) => {
   if (goHome && location.hash !== '#/') location.hash = '#/';
   else render(true);
 });
+const backups = backupController(async () => {
+  await profiles.load();
+  await reloadSaved(profiles.selected()?.id);
+  practiceState = { key: null, loading: false, entries: [], error: false };
+  practiceDraft = null; age = null; preview = false;
+}, (type, id) => type === 'milestone' ? cdcMilestones.some(item => item.id === id) : catalog.activities.some(item => item.id === id));
 const emptyLibraryFilters = () => ({ query: '', age: '', maxAge: '', approximate: false, skill: '', category: '', material: '', duration: '', setting: '' });
 let libraryFilters = emptyLibraryFilters();
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;',
@@ -473,6 +480,7 @@ function render(focusResult = false) {
   let content;
   if (!type) content = dashboard();
   else if (type === 'profiles') content = profiles.screen();
+  else if (type === 'backup') content = backups.screen();
   else if (type === 'saved') content = savedScreen();
   else if (type === 'history' && id === 'activity') content = practiceHistoryScreen(from);
   else if (type === 'log' && id === 'activity') content = activeActivity ? logPracticeScreen(activeActivity) : unavailable();
@@ -497,6 +505,7 @@ function render(focusResult = false) {
     <main id="main" tabindex="-1" class="${type && !(type === 'library' && !id) ? 'detail' : ''}">${content}</main>
     <footer>CDC milestone statements are pending human editorial review. Search activity examples are fictional engineering fixtures. CDC has not reviewed or endorsed this project.</footer>`;
   profiles.bind();
+  backups.bind();
   bindFavorites();
   bindPractice();
   document.querySelector('#age-form')?.addEventListener('submit', event => {
@@ -584,7 +593,7 @@ try {
     calendarDay = nextDay;
     if (profiles.selected() && age === null) preview = false;
     const route = location.hash.slice(1).split('/').filter(Boolean)[0];
-    if (profiles.selected() && !['profiles', 'library'].includes(route)) {
+    if (profiles.selected() && !['profiles', 'library', 'backup'].includes(route)) {
       const draftAge = document.querySelector('#age')?.value;
       const focusedId = document.activeElement?.id;
       render();

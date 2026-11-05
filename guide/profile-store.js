@@ -65,6 +65,7 @@ export function profileStore(namespace) {
     } finally { db.close(); }
   }
   return {
+    openDatabase: open,
     async load() {
       // Anonymous browsing does not create personal storage on supported browsers.
       if (indexedDB.databases && !(await indexedDB.databases()).some(db => db.name === name)) {

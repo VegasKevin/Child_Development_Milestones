@@ -12,6 +12,24 @@ Status — platform-neutral MVP draft. See [data model](data-model.md) and [inte
 
 **LS-005 — Data handling** (FR-009, NFR-003). Keep child data and backup contents out of network requests, URLs, telemetry, diagnostics and editor tools. Treat free-text notes as text on rendering. Keep invitation credentials outside personal backups. During deployment evaluation, test local storage isolation on shared browsers and establish whether multiple invited people can safely use the same browser profile.
 
+## Backup format v1
+
+The local guide uses browser Web Crypto PBKDF2 with SHA-256, 600,000 iterations, a fresh 16-byte salt, and AES-256-GCM with a fresh 12-byte IV and a 128-bit authentication tag.
+The UTF-8 password is used exactly as entered, without normalization or trimming.
+The authenticated additional data is the UTF-8 string `milestone-guide-backup:1`.
+The JSON envelope has exactly `format` (`milestone-guide-backup`), `version` (1), `suite` (`PBKDF2-SHA256-AES256-GCM`), `iterations` (600000), `salt`, `iv`, and `ciphertext`.
+Binary fields use canonical padded base64; ciphertext includes the appended GCM tag.
+Unknown envelope versions, suites, fields or parameters are rejected before key derivation.
+The decrypted JSON has exactly `schemaVersion` (1), `profiles`, `favorites`, and `practice`.
+Each collection contains the current local record shapes; record IDs, typed favorites, child references, dates and uniqueness are validated before preview.
+Catalog content, selection, temporary age, invitation state and passwords are excluded.
+Restore supports v1 only, preserves unresolved content references, and replaces all three collections and clears selection in one IndexedDB transaction after explicit confirmation.
+Unsupported future versions are preserved by rejecting import rather than guessing a migration.
+Files are limited to 10 MiB, exported plaintext to 5 MiB, and each collection to 10,000 records.
+The compatibility fixture uses synthetic records and fixed randomness solely as a known-answer test, produced independently with Node crypto.
+Production exports always generate fresh randomness.
+Web Crypto usage follows the [deriveKey documentation](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey) and [AES-GCM parameters](https://developer.mozilla.org/en-US/docs/Web/API/AesGcmParams).
+
 ## Acceptance cases
 
 | Case | Expected result |
