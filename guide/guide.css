@@ -77,6 +77,9 @@ main { max-width: 1120px; padding: 1.5rem 2rem 4rem; margin: auto; }
 .profile-list { list-style: none; padding: 0; display: grid; gap: 1rem; }
 .profile-list li { padding: 1.5rem; background: var(--lime); border-radius: 1.5rem; margin: 0; }
 .profile-list li:nth-child(even) { background: #73c7f1; }
+.profile-actions { display: flex; gap: .6rem; flex-wrap: wrap; }
+.remove-profile { padding: 1.5rem; background: #ffe1d5; border-left: .4rem solid var(--orange); border-radius: 1rem; margin-bottom: 2rem; }
+.remove-profile button, #cancel-edit { margin-top: .75rem; }
 button:disabled, select:disabled { cursor: wait; opacity: .65; }
 .panel-symbol { font-size: 2.5rem; line-height: 1; margin-bottom: 1.5rem; }
 label { font-weight: bold; display: block; margin-bottom: .5rem; }
@@ -143,6 +146,8 @@ footer { max-width: 1120px; margin: auto; padding: 1.5rem 2rem 2rem; color: var(
   main { padding: 16px 20px 48px; }
   .browse-layout { grid-template-columns: minmax(0, 1fr); gap: 1.75rem; }
   .age-panel { padding: 22px; }
+  .remove-profile { padding: 20px; }
+  .profile-actions .clear-button { padding: .5rem; }
   .panel-symbol { display: none; }
   .category-tile { max-width: none; }
   .age-panel > p { margin-bottom: 1.2rem; }

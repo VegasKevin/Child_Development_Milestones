@@ -2,14 +2,14 @@
 
 ## FR-001 local profile goal
 
-The active work connects local child profiles to the existing age engine while preserving temporary browsing.
-Slices proceed sequentially, each with a failing browser case, implementation, required checks, a fresh review and recorded evidence.
+The completed local profile flow connects child profiles to the existing age engine while preserving temporary browsing.
+The three slices proceeded sequentially, each with a failing browser case, implementation, required checks, a fresh review and recorded evidence.
 
 | Slice | Acceptance scope | Status |
 | --- | --- | --- |
 | P1: persistent exact-birth profiles | Create/select multiple profiles, persist only after an atomic commit, restore the selected child and derive age on reopening, recover from unavailable storage. | Complete for the local demo. |
 | P2: month-based ages and session overrides | Birth month/year input, younger-checkpoint default and labeled preview, temporary corrected age with unchanged profile/child association, calendar refresh. | Complete for the local demo. |
-| P3: profile management and completion audit | Edit/remove profiles, preserve records/drafts on failed writes, handle stale state safely, verify FR-001 criteria across complete flows. | Not started. |
+| P3: profile management and completion audit | Edit/remove profiles, preserve records/drafts on failed writes, handle stale state safely, verify FR-001 criteria across complete flows. | Complete for the local demo. |
 
 This remains a loopback-only local demo.
 Its explicit local-demo storage namespace is separate from guide content and is not a substitute for verified-adult isolation in a deployed application.
@@ -47,6 +47,43 @@ Those cases cover month-end range collapse, exact-date month-end clamping in det
 The native month-entry screenshots were inspected and the independent cases are retained in `e2e/profile-age-review.spec.js`.
 The final combined run passed all 50 affected browser cases without retries.
 
+### P3 completion evidence
+
+The first P3 browser case failed because the profile card had no Edit action.
+Profile edits retain the opaque ID and increment a revision, while removals require an explicit confirmation and atomically clear selection when the selected child is removed.
+Each edit or removal checks the latest stored revision in the same write transaction; stale attempts retain the draft and direct the parent to cancel editing, reload profiles and reopen the latest record.
+Reload profiles retains an open draft and does not silently replace its captured revision.
+Stored record shapes and selection references are validated before mutation; unsupported newer databases or record shapes remain intact.
+Blank labels receive an available Child number, including when a parent clears an existing nickname.
+A device clock correction that places a saved birth in the future leaves management and temporary browsing accessible.
+The initial eight desktop/mobile management checks passed; the full suite now includes failed deletion, unsupported-record preservation and corrected-clock recovery.
+All 39 unit checks, `npm.cmd run check` and `git diff --check` passed.
+The full 100-case browser suite passed with no retries, followed by a 14-case management rerun including cancellation focus.
+The fresh reviewer independently verified eight desktop/mobile cases covering in-flight navigation, stale deletion versus edit/deletion, creation drafts across editing, blank-label defaults, invalid edits and out-of-coverage child management.
+The review found no material local FR-001 behavior gap, but identified excessive removal-panel padding that split words at 320 pixels with 200% text.
+Mobile removal padding and profile-action button spacing were reduced; the independent visual recheck passed on desktop and mobile configurations at 320 pixels with 200% text.
+The final full browser suite passed 108/108 cases with no retries, including the retained independent review cases.
+The final fresh review found no remaining material issues and confirmed the local FR-001 acceptance coverage.
+
+### Local FR-001 acceptance audit
+
+This audit applies the birth-based profile decisions DEC-003/004/005/014 to FR-001 and user flows P1/P2.
+The draft requirement's saved manual-age mode is superseded by DEC-004.
+
+| Acceptance item | Runnable evidence |
+| --- | --- |
+| Browse anonymously with a temporary whole-month age and follow the normal detail path. | `e2e/guide.spec.js`: age-to-category/behavior/activity navigation, invalid age, reload reset and coverage cases. |
+| Create and select multiple optional local children; restore selection and derive age after browser restart. | `e2e/profiles.spec.js`: multiple profiles, selection persistence and a real disk-backed Chrome restart on a later calendar date. |
+| Save exact birth date or month/year without requiring legal name, gender, photo or medical history. | `e2e/profile-review.spec.js`: blank label accepted; `e2e/profile-ages.spec.js`: month record contains no day or extra personal fields; `src/child-profiles.js`: supported stored-field validation. |
+| Reject invalid/future birth input and use device-local calendar arithmetic. | Profile creation/precision validation browser cases, local-midnight browser case and existing `test/age-browsing.test.js` calendar boundaries. |
+| Approximate range selects the younger checklist and offers a labeled preview without changing effective age. | `e2e/profile-ages.spec.js`: five-to-six-month example and below-first-checkpoint preview; `e2e/profile-age-review.spec.js`: month-end range collapse and preview retirement. |
+| Temporary corrected age keeps child association, supports resuming birth age and is absent from persisted records. | `e2e/profile-ages.spec.js`: selected ID unchanged, stored fields unchanged, clear on reload/child switch; independent override and midnight cases. |
+| Edit/remove profiles atomically; failed saves retain drafts and prior records. | `e2e/profile-management.spec.js`: stable ID/revision edits, canceled/confirmed removal, transaction-aborted update/removal, stale edit and unsupported-data preservation; earlier aborted creation/selection cases. |
+| Keep child data local and labels inert; support keyboard and phone layouts. | Profile request/storage assertions, hostile-label concurrent-tab regression, keyboard/cancellation focus cases and inspected desktop/mobile/320-pixel enlarged-text screenshots. |
+
+All acceptance items above have runnable evidence and passed the final fresh review and completion checks.
+This audit does not claim completed production account isolation, backup, practice-entry UI, reviewed developmental content or full accessibility certification.
+
 ## Run locally
 
 Run `npm.cmd run dev` on Windows, or `npm run dev` elsewhere, from the repository root with Node.js 22.8 or later.
@@ -56,6 +93,9 @@ Stop it with Ctrl+C.
 For a different port, run `node scripts/serve-guide.mjs 4180`.
 
 Enter an age in whole months, open the category tile, select a behavior, and follow a linked activity.
+Alternatively, open Profiles to create an optional child with an exact birth date or birth month/year, then select that child on Milestones.
+Profile cards offer Edit and Remove; removal requires confirmation and does not select another child automatically.
+Reload profiles reads changes made in other tabs while preserving the open form draft; a stale edit must be canceled and reopened before it can be saved.
 The existing selection function chooses the greatest published checkpoint at or below that age.
 Below two months, the two-month checklist is an optional, labeled preview.
 At 72 months and above, the coverage message replaces checklist navigation.
@@ -63,13 +103,14 @@ The fictional catalog contains only checkpoints 2, 4, 6 and 60 and one category.
 No production CDC text, additional categories or activities are invented for this demo.
 
 Temporary age stays in memory and is not added to URLs, saved to browser storage, or submitted to a service.
-Reloading clears it; a milestone-context detail route without that context offers a return to age entry.
+Reloading clears the temporary age and resumes the selected child's birth-based age when available.
+Without a selected child, a milestone-context detail route without an age offers a return to age entry.
 Back navigation retains the current in-memory age and preview label.
 Materials, steps, suitability and safety notes are visible on activity details; source context uses a disclosure.
 
 The implemented slices cover temporary-age browsing and the linked checklist/category/behavior/activity path in FR-001/002/003/004/006, standalone discovery in FR-004/005, plus DM-A01/A04/A08 and responsive/keyboard aspects of FR-014.
 These are partial requirements checks using synthetic content, not completion of the full product requirements.
-Local profile integration is in progress as recorded above.
+The local FR-001 profile integration is complete as recorded above.
 Favorites, logging practice, offline access, catalog updates and production hosting remain separate work.
 The local demo does not change Sites or its invitation policy.
 

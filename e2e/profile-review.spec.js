@@ -88,7 +88,7 @@ test('review LS-001/005: concurrent tabs retain both creations and hostile label
   await expect(second.getByLabel('Selected child')).toBeVisible();
   await page.reload();
   await page.getByRole('link', { name: 'Profiles', exact: true }).click();
-  await expect(page.getByRole('list', { name: 'Local child profiles' }).getByRole('button')).toHaveCount(2);
+  await expect(page.getByRole('list', { name: 'Local child profiles' }).getByRole('button', { name: /^Use / })).toHaveCount(2);
   await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible();
   expect(await page.evaluate(() => window.__profileExecuted)).toBeUndefined();
   expect(requests.some(value => value.includes('child-secret') || value.includes('2026-05-15') || value.includes('Concurrent'))).toBe(false);

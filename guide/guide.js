@@ -24,8 +24,15 @@ const minutesLabel = minutes => `${minutes} ${minutes === 1 ? 'minute' : 'minute
 
 function context() {
   const profile = profiles.selected();
-  const selection = profile ? browseChecklists({ profile, today: today(), ...(age === null ? {} : { temporaryAgeMonths: age }) }, catalog.checkpoints)
-    : age === null ? null : selectChecklist(age, catalog.checkpoints);
+  let selection;
+  if (profile) {
+    try { selection = browseChecklists({ profile, today: today(), ...(age === null ? {} : { temporaryAgeMonths: age }) }, catalog.checkpoints); }
+    catch {
+      selection = age === null ? { status: 'invalid-profile-age', checklist: null, preview: null,
+        message: 'Check the date on this device or edit the saved birth information. You can still enter a temporary age.' }
+        : { ...selectChecklist(age, catalog.checkpoints), age: { minMonths: age, maxMonths: age, approximate: false }, childId: profile.id };
+    }
+  } else selection = age === null ? null : selectChecklist(age, catalog.checkpoints);
   const checkpoint = preview ? selection?.preview?.checklist : selection?.checklist;
   return { selection, checkpoint };
 }
@@ -35,7 +42,8 @@ function ageLabel(checkpoint) {
   const months = age ?? selection?.age?.minMonths;
   const profile = profiles.selected();
   if (!profile) return preview ? `${checkpoint.ageMonths}-month checklist preview` : `Browsing at ${months} ${months === 1 ? 'month' : 'months'}`;
-  const ageText = age !== null ? `temporary age ${months} months` : selection.age.approximate
+  if (!selection.age) return `${profile.label}: birth-based age unavailable`;
+  const ageText = age !== null ? `temporary age ${months} ${months === 1 ? 'month' : 'months'}` : selection.age.approximate
     ? `approximately ${selection.age.minMonths} to ${selection.age.maxMonths} months` : `${months} ${months === 1 ? 'month' : 'months'}`;
   return `${profile.label}: ${ageText}${preview ? `; ${checkpoint.ageMonths}-month checklist preview` : ''}`;
 }
@@ -131,7 +139,7 @@ function dashboard() {
             <span>${count} ${count === 1 ? 'behavior' : 'behaviors'}</span><span class="tile-bottom">View behaviors ${arrow}</span></a>`;
         }).join('')}</div>`;
     } else {
-      content = `<h2 tabindex="-1" data-result-title>${selection.status === 'below-coverage' ? 'A little early for this checklist.' : 'Outside checklist coverage.'}</h2>
+      content = `<h2 tabindex="-1" data-result-title>${selection.status === 'invalid-profile-age' ? 'Birth-based age unavailable.' : selection.status === 'below-coverage' ? 'A little early for this checklist.' : 'Outside checklist coverage.'}</h2>
         <p>${escape(selection.message)}</p>${selection.preview ? '<button class="preview-button" id="preview">Preview the 2-month checklist</button>' : '<p>Choose an age from 2 to 71 months to browse this demo.</p>'}`;
     }
   }

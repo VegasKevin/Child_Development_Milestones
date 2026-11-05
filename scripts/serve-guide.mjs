@@ -10,6 +10,7 @@ const files = new Map([
   ['/profiles.js', ['../guide/profiles.js', 'text/javascript']],
   ['/profile-store.js', ['../guide/profile-store.js', 'text/javascript']],
   ['/src/age-browsing.js', ['../src/age-browsing.js', 'text/javascript']],
+  ['/src/child-profiles.js', ['../src/child-profiles.js', 'text/javascript']],
   ['/src/checklist-selection.js', ['../src/checklist-selection.js', 'text/javascript']],
   ['/src/catalog.js', ['../src/catalog.js', 'text/javascript']],
   ['/fixtures/synthetic-catalogs.js', ['../fixtures/synthetic-catalogs.js', 'text/javascript']],
