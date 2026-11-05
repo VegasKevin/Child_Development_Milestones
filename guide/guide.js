@@ -5,7 +5,7 @@ import { selectChecklist } from '/src/checklist-selection.js';
 const app = document.querySelector('#app');
 let age = null;
 let preview = false;
-const emptyLibraryFilters = () => ({ query: '', age: '', skill: '', category: '', material: '', duration: '', setting: '' });
+const emptyLibraryFilters = () => ({ query: '', age: '', maxAge: '', approximate: false, skill: '', category: '', material: '', duration: '', setting: '' });
 let libraryFilters = emptyLibraryFilters();
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;',
   '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -43,7 +43,7 @@ function suitabilityLabel(activity) {
 }
 
 function libraryScreen() {
-  const { query, age: filterAge, skill, category, material, duration, setting } = libraryFilters;
+  const { query, age: filterAge, maxAge, approximate, skill, category, material, duration, setting } = libraryFilters;
   const milestoneCategories = new Map(catalog.milestones.map(item => [item.id, item.categoryId]));
   const activityCategories = new Map(catalog.activities.map(item => [item.id, new Set()]));
   const usedCategories = new Set();
@@ -57,6 +57,7 @@ function libraryScreen() {
   const durations = [...new Set(catalog.activities.map(item => item.durationMinutes).filter(value => value !== undefined))].sort((a, b) => a - b);
   const settings = ['indoor', 'outdoor'].filter(location => catalog.activities.some(item => item.setting === location || item.setting === 'either'));
   const months = filterAge === '' ? null : Number(filterAge);
+  const oldestMonths = approximate ? Number(maxAge) : months;
   const checkpoint = months === null ? null : selectChecklist(months, catalog.checkpoints).checklist;
   const words = query.toLocaleLowerCase('en').trim().split(/\s+/).filter(Boolean);
   const activities = catalog.activities.filter(activity => {
@@ -65,7 +66,7 @@ function libraryScreen() {
       .join(' ').toLocaleLowerCase('en');
     const suitable = months === null || (activity.suitability.checkpointIds
       ? activity.suitability.checkpointIds.includes(checkpoint?.id)
-      : months >= activity.suitability.minMonths && months <= activity.suitability.maxMonths);
+      : months >= activity.suitability.minMonths && oldestMonths <= activity.suitability.maxMonths);
     const matchesMaterial = !material || (material === 'none' ? activity.materials.length === 0
       : activity.materials.includes(material.slice('item:'.length)));
     const matchesDuration = !duration || (activity.durationMinutes !== undefined && activity.durationMinutes <= Number(duration));
@@ -75,9 +76,11 @@ function libraryScreen() {
   });
   const skills = catalog.skills.filter(item => catalog.activities.some(activity => activity.skillIds?.includes(item.id)));
   return `${heading('Activity library')}<p class="lead">Find an activity without choosing a milestone first.</p>
-    <form id="library-form" class="library-form" novalidate>
+    <form id="library-form" class="library-form${approximate ? ' is-range' : ''}" novalidate>
       <div class="keyword-field"><label for="keyword">Search by keyword</label><input type="search" id="keyword" value="${escape(query)}" placeholder="Title, materials or instructions"></div>
-      <div class="filter-age"><label for="filter-age">Filter age in months</label><input id="filter-age" type="number" min="0" step="1" inputmode="numeric" value="${escape(filterAge)}" aria-describedby="filter-help filter-error"><p class="form-help" id="filter-help">Optional. Leave blank for all ages.</p></div>
+      <div class="filter-age"><label class="age-mode"><input id="approximate-age" type="checkbox" aria-controls="age-range-end" ${approximate ? 'checked' : ''}><span>Use an approximate age range</span></label>
+      <div class="age-bounds"><div><label id="age-filter-label" for="filter-age">${approximate ? 'Youngest possible age in months' : 'Filter age in months'}</label><input id="filter-age" type="number" min="0" step="1" inputmode="numeric" value="${escape(filterAge)}" aria-describedby="filter-help filter-error"><p class="form-help" id="filter-help">${approximate ? 'Use the youngest and oldest possible ages, in whole months.' : 'Optional. Leave blank for all ages.'}</p></div>
+      <div id="age-range-end" ${approximate ? '' : 'hidden'}><label for="filter-age-max">Oldest possible age in months</label><input id="filter-age-max" type="number" min="0" step="1" inputmode="numeric" value="${escape(maxAge)}" aria-describedby="range-help filter-error"><p class="form-help" id="range-help">Both ends are included.</p></div></div></div>
       <div class="catalog-filters"><div><label for="category-filter">Developmental category</label><select id="category-filter"><option value="">All categories</option>${categories.map(item => `<option value="${escape(item.id)}" ${category === item.id ? 'selected' : ''}>${escape(item.label)}</option>`).join('')}</select></div>
       <div><label for="material-filter">Materials</label><select id="material-filter"><option value="">Any materials</option>${catalog.activities.some(item => item.materials.length === 0) ? `<option value="none" ${material === 'none' ? 'selected' : ''}>No materials listed</option>` : ''}${materials.map(item => `<option value="${escape(`item:${item}`)}" ${material === `item:${item}` ? 'selected' : ''}>${escape(item)}</option>`).join('')}</select></div>
       ${durations.length ? `<div><label for="duration-filter">Time available</label><select id="duration-filter"><option value="">Any duration</option>${durations.map(value => `<option value="${value}" ${duration === String(value) ? 'selected' : ''}>Up to ${minutesLabel(value)}</option>`).join('')}</select></div>` : ''}
@@ -88,6 +91,7 @@ function libraryScreen() {
     <div class="library-layout"><section class="skill-panel" aria-labelledby="skills-heading"><h2 id="skills-heading">Explore by skill</h2>
       ${skills.length ? skills.map(item => `<button type="button" class="skill-tile" data-skill="${escape(item.id)}" aria-pressed="${skill === item.id}"><span>${escape(item.label)}</span><span aria-hidden="true">${skill === item.id ? 'Selected' : 'Show activities'}</span></button>`).join('') : '<p>No skill tags are listed in this catalog.</p>'}</section>
       <section class="library-results" aria-labelledby="results-heading"><div class="list-heading"><h2 id="results-heading" tabindex="-1" aria-describedby="result-count" data-result-title>Results</h2><p id="result-count" role="status" aria-live="polite">${activities.length} ${activities.length === 1 ? 'activity' : 'activities'}</p></div>
+      ${approximate ? `<p class="applied-filter">Approximate age: ${months} to ${oldestMonths} months</p><p class="applied-filter">${checkpoint ? `Checkpoint-based activities use ${escape(checkpoint.label)}.` : 'No applicable checklist at the younger age.'}</p>` : ''}
       ${category ? `<p class="applied-filter">Category: ${escape(categories.find(item => item.id === category).label)}</p>` : ''}
       ${material ? `<p class="applied-filter">Materials: ${escape(material === 'none' ? 'No materials listed' : material.slice('item:'.length))}</p>` : ''}
       ${duration ? `<p class="applied-filter">Time available: Up to ${minutesLabel(Number(duration))}</p>` : ''}
@@ -205,17 +209,41 @@ function render(focusResult = false) {
   function applyLibraryFilters(skill = libraryFilters.skill) {
     const input = document.querySelector('#filter-age');
     const value = input.value.trim();
-    if (input.validity.badInput || (value && (!Number.isSafeInteger(Number(value)) || Number(value) < 0))) {
-      document.querySelector('#filter-error').textContent = 'Enter a whole number of months, zero or above, or leave age blank.';
-      input.setAttribute('aria-invalid', 'true');
-      input.focus();
-      return;
+    const upperInput = document.querySelector('#filter-age-max');
+    const upperValue = upperInput.value.trim();
+    const approximate = document.querySelector('#approximate-age').checked;
+    const validMonths = text => Number.isSafeInteger(Number(text)) && Number(text) >= 0;
+    const failAge = (field, message) => {
+      document.querySelector('#filter-error').textContent = message;
+      field.setAttribute('aria-invalid', 'true');
+      field.focus();
+    };
+    input.removeAttribute('aria-invalid');
+    upperInput.removeAttribute('aria-invalid');
+    if (approximate) {
+      if (input.validity.badInput || (value && !validMonths(value))) return failAge(input, 'Enter whole numbers of months, zero or above.');
+      if (upperInput.validity.badInput || (upperValue && !validMonths(upperValue))) return failAge(upperInput, 'Enter whole numbers of months, zero or above.');
+      if (!value || !upperValue) return failAge(!value ? input : upperInput, 'Enter both ends of the approximate age range.');
+      if (Number(upperValue) < Number(value)) return failAge(upperInput, 'The oldest possible age must be at least the youngest.');
+    } else if (input.validity.badInput || (value && !validMonths(value))) {
+      return failAge(input, 'Enter a whole number of months, zero or above, or leave age blank.');
     }
-    libraryFilters = { query: document.querySelector('#keyword').value, age: value, skill,
+    libraryFilters = { query: document.querySelector('#keyword').value, age: value,
+      approximate, maxAge: approximate ? upperValue : '', skill,
       category: document.querySelector('#category-filter').value, material: document.querySelector('#material-filter').value,
       duration: document.querySelector('#duration-filter')?.value ?? '', setting: document.querySelector('#setting-filter')?.value ?? '' };
     render(true);
   }
+  document.querySelector('#approximate-age')?.addEventListener('change', event => {
+    const approximate = event.target.checked;
+    document.querySelector('#library-form').classList.toggle('is-range', approximate);
+    document.querySelector('#age-range-end').hidden = !approximate;
+    document.querySelector('#age-filter-label').textContent = approximate ? 'Youngest possible age in months' : 'Filter age in months';
+    document.querySelector('#filter-help').textContent = approximate ? 'Use the youngest and oldest possible ages, in whole months.' : 'Optional. Leave blank for all ages.';
+    document.querySelector('#filter-error').textContent = '';
+    document.querySelector('#filter-age').removeAttribute('aria-invalid');
+    document.querySelector('#filter-age-max').removeAttribute('aria-invalid');
+  });
   document.querySelector('#library-form')?.addEventListener('submit', event => { event.preventDefault(); applyLibraryFilters(); });
   document.querySelectorAll('[data-skill]').forEach(button => button.addEventListener('click', () => {
     applyLibraryFilters(libraryFilters.skill === button.dataset.skill ? '' : button.dataset.skill);

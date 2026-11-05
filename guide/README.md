@@ -29,9 +29,11 @@ Choose Search in the main navigation to browse activities without selecting an a
 Search matches every case-insensitive query word across titles, materials, instructions and explicitly assigned skill labels.
 Age, skill, developmental category, materials, time and setting filters combine with the query, and results retain their catalog order without ranking or duplicated placements.
 The age filter is separate from the temporary milestone-browsing age.
-Month-range suitability matches the entered age directly and includes both endpoints.
-Checkpoint suitability matches the applicable published checklist, so the six-month checkpoint also matches an age of seven months.
-Below two months or at 72 months and above, there is no applicable checkpoint for this filter; this does not activate a checklist preview.
+For an exact age, month-range suitability matches that age directly and includes both endpoints.
+For an approximate age interval, the activity's month range must contain the entire inclusive interval; partial overlap does not match.
+Checkpoint suitability uses the applicable published checklist at the exact age or the younger end of the interval.
+The six-month checkpoint matches an exact age of seven months, while an interval from five to six months uses the four-month checkpoint.
+If the younger age is below two months or at least 72 months, there is no applicable checkpoint; library filtering does not activate a checklist preview.
 Skills use only explicit activity skill IDs; skill overlap through a linked milestone does not add a tag to an untagged activity.
 The local guide now uses `fixtures/guide-catalog.js`, a distinct fictional release with example duration and setting metadata.
 The earlier `releaseOne` and `releaseTwo` engineering fixtures remain unchanged.
@@ -47,7 +49,9 @@ Category options come from categories attached to active activities through dire
 An activity matches a category when any of its direct linked milestones has that category, regardless of which checkpoint is currently being browsed.
 Skill overlap alone never creates a category placement or a skill assignment.
 Unused catalog categories are not offered as activity filters.
-Approximate-age discovery remains separate work.
+Use an approximate age range reveals youngest and oldest possible ages, both required as nonnegative safe whole numbers of months with youngest no greater than oldest.
+This is a temporary library query, not a new child-profile record or an override of the dashboard age.
+Returning to exact mode clears the applied upper bound; a blank exact-age field still means no age filter.
 
 Submit Search activities to apply the entered controls, or toggle a skill tile to apply it together with those controls.
 Clear filters resets all library controls and restores all active activities.
@@ -88,7 +92,7 @@ Those cases are retained as a regression for quoted/symbol-containing material l
 | FR-005 / DM-003: combine filters without inferring missing metadata | Verified locally | Query, age, skill, category and materials intersect; an untagged activity does not acquire a skill through its milestone links. |
 | FR-014: usable filter controls | Partially verified | Keyboard selection, result focus, desktop/mobile screenshots, and 320-pixel layout with 200% text are checked; a complete accessibility audit and physical-device testing remain open. |
 | FR-005: duration and indoor/outdoor setting | Completed in the following slice | See duration and setting evidence below. |
-| DM-003: approximate-age discovery | Unimplemented in the UI | The library accepts an exact whole-month age only. |
+| DM-003: approximate-age discovery | Completed in the interval slice | See approximate-age evidence below. |
 
 Returning from an activity preserves every applied filter, and Clear filters restores the entire active catalog.
 Reload clears the temporary filter state.
@@ -114,10 +118,33 @@ Those cases are retained in the browser suite; the failed-activation unit check 
 | DM-006: release identity and revision continuity | Verified locally | The separate guide fixture activates from releaseOne with a new release ID and incremented activity revisions; earlier fixtures remain unchanged. |
 | FR-006: show duration and location with activity essentials | Verified locally | Details expose known duration and either-location metadata, or explicit not-listed states. |
 | FR-014: keyboard and responsive controls | Partially verified | Desktop/mobile screenshots and keyboard operation at 320 pixels with 200% text are checked; physical-device and full accessibility testing remain open. |
-| DM-003: approximate-age discovery | Still unimplemented in the UI | The library accepts exact whole-month ages; an age interval is a separate slice. |
+| DM-003: approximate-age discovery | Completed in the interval slice | See approximate-age evidence below. |
 
 Returning from details preserves time and setting alongside other applied filters, Clear filters resets them, and reload clears temporary choices.
-These synthetic checks do not establish real editorial approval, production content completeness or the remaining approximate-age behavior.
+These synthetic checks do not establish real editorial approval or production content completeness.
+
+## Approximate-age library slice evidence
+
+The new browser test first failed because no approximate-range control existed.
+The tests in `e2e/approximate-age.spec.js` use a validated fictional catalog with activities that fully contain, partially overlap or exactly match the chosen age interval, plus separate four- and six-month checkpoint activities.
+An interval of five to six months includes a four-month checkpoint activity and excludes the six-month one, preserving the younger checkpoint even when the upper bound reaches the next checkpoint.
+The applied result summary labels the approximate interval and states which checkpoint is being used.
+Invalid bounds focus the offending input, expose a validation message and leave the prior applied results intact.
+Checkbox changes edit the form; Search activities or a skill toggle applies valid controls.
+Clear filters restores unrestricted discovery, and reload resets the range mode and both bounds.
+No age interval is written to a URL, browser storage or service request.
+The fresh reviewer's independently written probe is retained as a normal browser regression for a zero-to-71-month interval combined with every filter, invalid-draft discard, dashboard age separation and empty local/session/IndexedDB storage.
+
+| Requirement or criterion | Status for this slice | Evidence or remaining limit |
+| --- | --- | --- |
+| DM-003: entire interval within month suitability | Verified locally | Inclusive ends, single-month intervals, partial overlaps and empty results are exercised. |
+| DM-003/004: checkpoint chosen at the younger age | Verified locally | The five-to-six-month case uses checkpoint four rather than checkpoint six; coverage-edge cases do not activate previews. |
+| FR-005: combine an approximate age with discovery filters | Verified locally | The reviewer-derived case combines interval, keyword, skill, category, materials, duration and setting through the normal Search entry point. |
+| FR-001: clear approximate labeling and input validation | Verified for the library query | Missing, reversed, fractional and unsafe bounds are rejected without claiming day-level age precision. |
+| FR-014: keyboard and responsive controls | Partially verified | Native checkbox/number controls, result focus, desktop/mobile screenshots and 320-pixel/200% text are checked; physical-device and full accessibility checks remain open. |
+| DM-004 / DM-A02: derive an interval from profile birth month | Still unimplemented in the UI | Existing platform-neutral age tests cover the arithmetic, but this slice accepts a manually specified query interval and creates no child profile. |
+
+This completes the local library's range-filter behavior, not production catalog approval or the separate profile, persistence and age-derivation flows.
 
 Desktop Chrome uses 1440 by 1000 pixels; mobile Chrome emulation uses 390 by 844 pixels.
 An additional check uses a 320-pixel viewport with 200% root text size.

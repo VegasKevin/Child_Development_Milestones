@@ -46,6 +46,11 @@ nav a { display: inline-flex; align-items: center; min-height: 44px; padding: .5
 nav a[aria-current] { background: var(--ink); color: white; }
 .library-form { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 1.25rem; padding: 1.5rem; border-radius: 1.5rem; background: white; margin-bottom: 2rem; align-items: start; }
 .library-form input, .library-form select { width: 100%; min-width: 0; padding: .75rem; border: 2px solid #676660; border-radius: .7rem; color: var(--ink); background: white; }
+.age-mode { display: flex; align-items: flex-start; gap: .6rem; min-height: 44px; font-size: .875rem; font-weight: normal; }
+.age-mode input { width: 20px; height: 20px; min-height: 20px; padding: 0; margin: .25rem 0 0; flex-shrink: 0; accent-color: var(--ink); }
+.age-bounds { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.library-form.is-range .keyword-field, .library-form.is-range .filter-age { grid-column: 1 / -1; }
+.library-form.is-range .age-bounds { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .catalog-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-column: 1 / -1; gap: 1.25rem; }
 .catalog-filters > div { min-width: 0; }
 .library-actions { display: flex; justify-content: flex-end; grid-column: 1 / -1; gap: .75rem; }
@@ -123,6 +128,7 @@ footer { max-width: 1120px; margin: auto; padding: 1.5rem 2rem 2rem; color: var(
 @media (max-width: 700px) {
   nav { order: 3; width: 100%; flex-wrap: wrap; }
   .library-form { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+  .library-form.is-range .age-bounds { grid-template-columns: minmax(0, 1fr); }
   .catalog-filters { grid-template-columns: minmax(0, 1fr); }
   .library-actions { flex-direction: column; }
   .library-actions .primary { width: 100%; }
