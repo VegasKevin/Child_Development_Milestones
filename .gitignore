@@ -14,6 +14,7 @@ secrets.json
 # Local tools, dependencies, and generated output
 .codex/
 .agents/
+.sites-runtime/
 node_modules/
 dist/
 build/

@@ -1,0 +1,12 @@
+import { mkdir, copyFile, rm } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { resolve, dirname } from 'node:path';
+const root = new URL('../', import.meta.url);
+const projectRoot = resolve(fileURLToPath(root));
+const dist = resolve(projectRoot, 'dist');
+if (dirname(dist) !== projectRoot) throw new Error('Build output must be within this project.');
+await rm(dist, { recursive: true, force: true });
+for (const dir of ['dist/server/', 'dist/.openai/']) await mkdir(new URL(dir, root), { recursive: true });
+await copyFile(new URL('worker/index.js', root), new URL('dist/server/index.js', root));
+await copyFile(new URL('.openai/hosting.json', root), new URL('dist/.openai/hosting.json', root));
+console.log(`Built ${fileURLToPath(new URL('dist/', root))}`);
