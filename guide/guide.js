@@ -5,6 +5,7 @@ import { selectChecklist } from '/src/checklist-selection.js';
 const app = document.querySelector('#app');
 let age = null;
 let preview = false;
+let libraryFilters = { query: '', age: '', skill: '' };
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;',
   '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const arrow = '<span aria-hidden="true" class="row-arrow">↗</span>';
@@ -30,6 +31,41 @@ function sourceDetails(sourceIds) {
     <p>These are fictional engineering fixtures, not reviewed CDC milestones or activity guidance.</p>
     <ul>${sourceIds.map(id => catalog.sources.find(source => source.id === id)).filter(Boolean)
     .map(source => `<li>${escape(source.title)}<br>${escape(source.reuseInfo)}</li>`).join('')}</ul></details>`;
+}
+
+function suitabilityLabel(activity) {
+  return activity.suitability.checkpointIds
+    ? activity.suitability.checkpointIds.map(id => catalog.checkpoints.find(item => item.id === id).label).join(', ')
+    : `${activity.suitability.minMonths} to ${activity.suitability.maxMonths} months`;
+}
+
+function libraryScreen() {
+  const { query, age: filterAge, skill } = libraryFilters;
+  const months = filterAge === '' ? null : Number(filterAge);
+  const checkpoint = months === null ? null : selectChecklist(months, catalog.checkpoints).checklist;
+  const words = query.toLocaleLowerCase('en').trim().split(/\s+/).filter(Boolean);
+  const activities = catalog.activities.filter(activity => {
+    const skills = (activity.skillIds ?? []).map(id => catalog.skills.find(item => item.id === id));
+    const text = [activity.title, ...activity.materials, ...activity.instructions, ...skills.map(item => item.label)]
+      .join(' ').toLocaleLowerCase('en');
+    const suitable = months === null || (activity.suitability.checkpointIds
+      ? activity.suitability.checkpointIds.includes(checkpoint?.id)
+      : months >= activity.suitability.minMonths && months <= activity.suitability.maxMonths);
+    return suitable && (!skill || activity.skillIds?.includes(skill)) && words.every(word => text.includes(word));
+  });
+  const skills = catalog.skills.filter(item => catalog.activities.some(activity => activity.skillIds?.includes(item.id)));
+  return `${heading('Activity library')}<p class="lead">Find an activity without choosing a milestone first.</p>
+    <form id="library-form" class="library-form" novalidate>
+      <div class="keyword-field"><label for="keyword">Search by keyword</label><input type="search" id="keyword" value="${escape(query)}" placeholder="Title, materials or instructions"></div>
+      <div class="filter-age"><label for="filter-age">Filter age in months</label><input id="filter-age" type="number" min="0" step="1" inputmode="numeric" value="${escape(filterAge)}" aria-describedby="filter-help filter-error"><p class="form-help" id="filter-help">Optional. Leave blank for all ages.</p></div>
+      <div class="library-actions"><button class="primary" type="submit">Search activities</button><button class="clear-button" type="button" id="clear-filters">Clear filters</button></div>
+      <p id="filter-error" class="form-error" role="alert"></p>
+    </form>
+    <div class="library-layout"><section class="skill-panel" aria-labelledby="skills-heading"><h2 id="skills-heading">Explore by skill</h2>
+      ${skills.length ? skills.map(item => `<button type="button" class="skill-tile" data-skill="${escape(item.id)}" aria-pressed="${skill === item.id}"><span>${escape(item.label)}</span><span aria-hidden="true">${skill === item.id ? 'Selected' : 'Show activities'}</span></button>`).join('') : '<p>No skill tags are listed in this catalog.</p>'}</section>
+      <section class="library-results" aria-labelledby="results-heading"><div class="list-heading"><h2 id="results-heading" tabindex="-1" aria-describedby="result-count" data-result-title>Results</h2><p id="result-count" role="status" aria-live="polite">${activities.length} ${activities.length === 1 ? 'activity' : 'activities'}</p></div>
+      <ul class="content-list" aria-label="Activity results">${activities.map(activity => `<li class="library-result"><a class="content-row" href="#/library/activity/${encodeURIComponent(activity.id)}"><span>${escape(activity.title)}</span>${arrow}</a><p>${escape(suitabilityLabel(activity))}</p></li>`).join('')}</ul>
+      ${activities.length ? '' : '<div class="empty-results"><h3>No activities match.</h3><p>Try another keyword, adjust the age, or clear the filters.</p></div>'}</section></div>`;
 }
 
 function dashboard() {
@@ -83,12 +119,9 @@ function milestoneScreen(milestone, checkpoint) {
 }
 
 function activityScreen(activity, milestone, checkpoint) {
-  const suitability = activity.suitability.checkpointIds
-    ? activity.suitability.checkpointIds.map(id => catalog.checkpoints.find(item => item.id === id).label).join(', ')
-    : `${activity.suitability.minMonths} to ${activity.suitability.maxMonths} months`;
-  return `${back(`#/milestone/${encodeURIComponent(milestone.id)}`, 'Back to behavior')}${contextBar(checkpoint)}
+  return `${milestone ? back(`#/milestone/${encodeURIComponent(milestone.id)}`, 'Back to behavior') + contextBar(checkpoint) : back('#/library', 'Back to activity library')}
     <div class="activity-heading"><p class="content-label">Activity</p>${heading(activity.title)}
-      <p>Linked to ${escape(milestone.sourceStatement)}</p><p>Listed for: ${escape(suitability)}</p></div>
+      ${milestone ? `<p>Linked to ${escape(milestone.sourceStatement)}</p>` : ''}<p>Listed for: ${escape(suitabilityLabel(activity))}</p></div>
     <section class="activity-section"><h2>Materials</h2>${activity.materials.length ? `<ul>${activity.materials.map(item => `<li>${escape(item)}</li>`).join('')}</ul>` : '<p>No materials listed.</p>'}</section>
     <section class="activity-section"><h2>Steps</h2><ol class="steps">${activity.instructions.map(item => `<li>${escape(item)}</li>`).join('')}</ol></section>
     <section class="safety"><h2>Safety notes</h2>${activity.safetyWarnings.length ? `<ul>${activity.safetyWarnings.map(warning => `<li>${escape(warning)}</li>`).join('')}</ul>` : '<p>No safety warnings listed in this fictional demo.</p>'}</section>
@@ -104,6 +137,10 @@ function render(focusResult = false) {
   const [type, id, from] = location.hash.slice(1).split('/').filter(Boolean);
   let content;
   if (!type) content = dashboard();
+  else if (type === 'library') {
+    const activity = id === 'activity' && catalog.activities.find(item => item.id === from);
+    content = !id ? libraryScreen() : activity ? activityScreen(activity) : unavailable();
+  }
   else if (!checkpoint) content = unavailable();
   else if (type === 'category') {
     const category = catalog.categories.find(item => item.id === id);
@@ -117,8 +154,8 @@ function render(focusResult = false) {
     const activity = milestone && linkedActivities(catalog, milestone.id).find(item => item.id === id);
     content = activity ? activityScreen(activity, milestone, checkpoint) : unavailable();
   } else content = unavailable();
-  app.innerHTML = `<header class="site-header"><a class="brand" href="#/" aria-label="Milestone guide home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Milestone guide</a><span class="demo-tag">Local demo</span></header>
-    <main id="main" tabindex="-1" class="${type ? 'detail' : ''}">${content}</main>
+  app.innerHTML = `<header class="site-header"><a class="brand" href="#/" aria-label="Milestone guide home"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>Milestone guide</a><nav aria-label="Main navigation"><a href="#/" ${type !== 'library' ? 'aria-current="page"' : ''}>Milestones</a><a href="#/library" ${type === 'library' ? 'aria-current="page"' : ''}>Search</a></nav><span class="demo-tag">Local demo</span></header>
+    <main id="main" tabindex="-1" class="${type && !(type === 'library' && !id) ? 'detail' : ''}">${content}</main>
     <footer>Made for exploring the flow. All checklist and activity content here is fictional.</footer>`;
   document.querySelector('#age-form')?.addEventListener('submit', event => {
     event.preventDefault();
@@ -136,6 +173,26 @@ function render(focusResult = false) {
     render(true);
   });
   document.querySelector('#preview')?.addEventListener('click', () => { preview = true; render(true); });
+  function applyLibraryFilters(skill = libraryFilters.skill) {
+    const input = document.querySelector('#filter-age');
+    const value = input.value.trim();
+    if (input.validity.badInput || (value && (!Number.isSafeInteger(Number(value)) || Number(value) < 0))) {
+      document.querySelector('#filter-error').textContent = 'Enter a whole number of months, zero or above, or leave age blank.';
+      input.setAttribute('aria-invalid', 'true');
+      input.focus();
+      return;
+    }
+    libraryFilters = { query: document.querySelector('#keyword').value, age: value, skill };
+    render(true);
+  }
+  document.querySelector('#library-form')?.addEventListener('submit', event => { event.preventDefault(); applyLibraryFilters(); });
+  document.querySelectorAll('[data-skill]').forEach(button => button.addEventListener('click', () => {
+    applyLibraryFilters(libraryFilters.skill === button.dataset.skill ? '' : button.dataset.skill);
+  }));
+  document.querySelector('#clear-filters')?.addEventListener('click', () => {
+    libraryFilters = { query: '', age: '', skill: '' };
+    render(true);
+  });
   if (focusResult) document.querySelector('[data-result-title]')?.focus();
   else if (location.hash) document.querySelector('[data-view-title]')?.focus();
 }

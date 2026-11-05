@@ -5,7 +5,7 @@ Build a milestone-first child development guide. Invited adults browse CDC behav
 ## Run the local guide
 
 Run `npm.cmd run dev` on Windows, or `npm run dev` elsewhere, and open `http://127.0.0.1:4173`.
-This local demo uses fictional catalog content for temporary-age browsing, milestone details and linked activities.
+This local demo uses fictional catalog content for temporary-age browsing, milestone details, linked activities and standalone activity search.
 See [the guide instructions](guide/README.md) for scope and browser checks.
 Login and hosting evaluation are deferred; this demo does not select a deployment platform.
 
