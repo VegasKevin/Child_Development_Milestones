@@ -16,7 +16,7 @@ Then run the [hosting proof of concept](deployment-evaluation.md) for OpenAI Sit
 | Invitation, access expiry, catalog delivery | [Interfaces](interfaces.md), IF-001–005 |
 | Profiles, favorites, practice history, offline storage, backups | [Local storage](local-storage.md) and DM-005–007 |
 | Review, publishing, updates and safety withdrawals | [Content pipeline](content-pipeline.md) |
-| Mobile navigation and screen layouts | [Mobile UI plan and mockups](mobile-ui.md) |
+| Mobile navigation and screen layouts | [Mobile UI plan and owner-supplied references](mobile-ui.md) |
 | System boundaries | [Overview](overview.md) |
 | Implementation order, product changes and engineering defaults | [Coding handoff](coding-handoff.md) |
 | Rationale or conflict with a product draft | [Confirmed decisions](architecture-interview-decisions.md) |

@@ -1,6 +1,6 @@
 # Mobile UI plan
 
-Status — proposed mobile layouts for implementation. Images are static mockups. Sample activity content is illustrative and requires editorial approval before publication.
+Status — proposed mobile layouts for implementation. The supplied images below are the visual references. Use the architecture contracts for application behavior.
 
 ## Core flow
 
@@ -19,15 +19,13 @@ Status — proposed mobile layouts for implementation. Images are static mockups
 - Use explicit states for approximate age, first-checkpoint preview, no linked activities, offline cache miss, and expired or revoked access. Keep encrypted export reachable after access expiry per the handoff defaults.
 - Use a single column on phones. Support text enlargement, visible keyboard focus, meaningful labels, and touch targets of at least 44 by 44 CSS pixels for primary controls. Test at narrow and enlarged-text sizes. Keep important safety information outside collapsed sections.
 
-## Example screens
+## Visual references
 
-1. [Milestone overview](mobile-ui/01-milestones.png)
-2. [Behavior detail](mobile-ui/02-milestone-detail.png)
-3. [Activity detail](mobile-ui/03-activity-detail.png)
-4. [Log practice](mobile-ui/04-log-practice.png)
-5. [Search and browse](mobile-ui/05-search.png)
-6. [Activity results](mobile-ui/06-activity-list.png)
+Use these owner-supplied examples when implementing the corresponding screen.
 
-The four destinations and visual style are proposed defaults. The supplied references informed the category dashboard, search tiles, compact activity rows, and activity detail hierarchy. Use the images for layout direction and the architecture contracts for behavior. Access, filter controls, history, settings, and error screens still need layouts.
+- [Milestone dashboard](<milestone dashboard ui example.png>) — compact, bold category cards.
+- [Search](<mobile search ui example.jpg>) — prominent search field and colorful browse tiles.
+- [Activity results](<list of activites ui example.png>) — compact stacked rows with a clear title and useful metadata.
+- [Activity detail](<activity detail screen ui example.png>) — use the information hierarchy and prominent bottom action. Carry the lighter surfaces and bright accents from the other references into this screen.
 
 References FR-001–011, FR-014, P1–P8 and DEC-001–014.

@@ -20,4 +20,5 @@ If you see one, even if it is not caused by what you are working on right now, s
 * Build vertically. Deliver one observable behavior through its normal entry point. For a platform-neutral slice, exercise the closest runnable boundary and state what remains for full end-to-end coverage.
 * Start with a failing end-to-end test. Confirm it fails for the expected reason, implement the smallest change that makes it pass, then rerun the affected checks.
 * Get a fresh review after tests pass. Spawn a subagent with fresh context. Give it the slice’s requirement IDs, relevant excerpts, diff, and test commands. Ask it to verify the behavior independently. Resolve material findings and rerun the checks before calling the slice done.
+* For slices that create or change a user-facing screen, use the `frontend-design` skill and consult the relevant original design reference linked in `mobile-ui.md`.
 
