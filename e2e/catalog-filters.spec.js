@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 import { discoveryCatalog } from './fixtures/discovery-catalog.js';
 
 async function openCatalog(page, catalog = discoveryCatalog()) {
-  await page.route('**/fixtures/synthetic-catalogs.js', route => route.fulfill({
-    contentType: 'text/javascript', body: `export const releaseOne = ${JSON.stringify(catalog)};`,
+  await page.route('**/fixtures/guide-catalog.js', route => route.fulfill({
+    contentType: 'text/javascript', body: `export const guideCatalog = ${JSON.stringify(catalog)};`,
   }));
   await page.goto('/');
   await page.getByRole('link', { name: 'Search', exact: true }).click();

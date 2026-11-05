@@ -1,17 +1,19 @@
-import { releaseOne as catalog } from '/fixtures/synthetic-catalogs.js';
+import { guideCatalog as catalog } from '/fixtures/guide-catalog.js';
 import { validateCatalog, linkedActivities } from '/src/catalog.js';
 import { selectChecklist } from '/src/checklist-selection.js';
 
 const app = document.querySelector('#app');
 let age = null;
 let preview = false;
-const emptyLibraryFilters = () => ({ query: '', age: '', skill: '', category: '', material: '' });
+const emptyLibraryFilters = () => ({ query: '', age: '', skill: '', category: '', material: '', duration: '', setting: '' });
 let libraryFilters = emptyLibraryFilters();
 const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;',
   '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
 const arrow = '<span aria-hidden="true" class="row-arrow">↗</span>';
 const back = (href, label) => `<a class="back-link" href="${href}"><span aria-hidden="true">←</span> ${label}</a>`;
 const heading = text => `<h1 tabindex="-1" data-view-title>${escape(text)}</h1>`;
+const settingLabels = { indoor: 'Indoors', outdoor: 'Outdoors', either: 'Indoors or outdoors' };
+const minutesLabel = minutes => `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`;
 
 function context() {
   const selection = age === null ? null : selectChecklist(age, catalog.checkpoints);
@@ -41,7 +43,7 @@ function suitabilityLabel(activity) {
 }
 
 function libraryScreen() {
-  const { query, age: filterAge, skill, category, material } = libraryFilters;
+  const { query, age: filterAge, skill, category, material, duration, setting } = libraryFilters;
   const milestoneCategories = new Map(catalog.milestones.map(item => [item.id, item.categoryId]));
   const activityCategories = new Map(catalog.activities.map(item => [item.id, new Set()]));
   const usedCategories = new Set();
@@ -52,6 +54,8 @@ function libraryScreen() {
   }
   const categories = catalog.categories.filter(item => usedCategories.has(item.id));
   const materials = [...new Set(catalog.activities.flatMap(item => item.materials))];
+  const durations = [...new Set(catalog.activities.map(item => item.durationMinutes).filter(value => value !== undefined))].sort((a, b) => a - b);
+  const settings = ['indoor', 'outdoor'].filter(location => catalog.activities.some(item => item.setting === location || item.setting === 'either'));
   const months = filterAge === '' ? null : Number(filterAge);
   const checkpoint = months === null ? null : selectChecklist(months, catalog.checkpoints).checklist;
   const words = query.toLocaleLowerCase('en').trim().split(/\s+/).filter(Boolean);
@@ -64,8 +68,10 @@ function libraryScreen() {
       : months >= activity.suitability.minMonths && months <= activity.suitability.maxMonths);
     const matchesMaterial = !material || (material === 'none' ? activity.materials.length === 0
       : activity.materials.includes(material.slice('item:'.length)));
+    const matchesDuration = !duration || (activity.durationMinutes !== undefined && activity.durationMinutes <= Number(duration));
+    const matchesSetting = !setting || activity.setting === setting || activity.setting === 'either';
     return suitable && (!skill || activity.skillIds?.includes(skill)) &&
-      (!category || activityCategories.get(activity.id).has(category)) && matchesMaterial && words.every(word => text.includes(word));
+      (!category || activityCategories.get(activity.id).has(category)) && matchesMaterial && matchesDuration && matchesSetting && words.every(word => text.includes(word));
   });
   const skills = catalog.skills.filter(item => catalog.activities.some(activity => activity.skillIds?.includes(item.id)));
   return `${heading('Activity library')}<p class="lead">Find an activity without choosing a milestone first.</p>
@@ -73,7 +79,9 @@ function libraryScreen() {
       <div class="keyword-field"><label for="keyword">Search by keyword</label><input type="search" id="keyword" value="${escape(query)}" placeholder="Title, materials or instructions"></div>
       <div class="filter-age"><label for="filter-age">Filter age in months</label><input id="filter-age" type="number" min="0" step="1" inputmode="numeric" value="${escape(filterAge)}" aria-describedby="filter-help filter-error"><p class="form-help" id="filter-help">Optional. Leave blank for all ages.</p></div>
       <div class="catalog-filters"><div><label for="category-filter">Developmental category</label><select id="category-filter"><option value="">All categories</option>${categories.map(item => `<option value="${escape(item.id)}" ${category === item.id ? 'selected' : ''}>${escape(item.label)}</option>`).join('')}</select></div>
-      <div><label for="material-filter">Materials</label><select id="material-filter"><option value="">Any materials</option>${catalog.activities.some(item => item.materials.length === 0) ? `<option value="none" ${material === 'none' ? 'selected' : ''}>No materials listed</option>` : ''}${materials.map(item => `<option value="${escape(`item:${item}`)}" ${material === `item:${item}` ? 'selected' : ''}>${escape(item)}</option>`).join('')}</select></div></div>
+      <div><label for="material-filter">Materials</label><select id="material-filter"><option value="">Any materials</option>${catalog.activities.some(item => item.materials.length === 0) ? `<option value="none" ${material === 'none' ? 'selected' : ''}>No materials listed</option>` : ''}${materials.map(item => `<option value="${escape(`item:${item}`)}" ${material === `item:${item}` ? 'selected' : ''}>${escape(item)}</option>`).join('')}</select></div>
+      ${durations.length ? `<div><label for="duration-filter">Time available</label><select id="duration-filter"><option value="">Any duration</option>${durations.map(value => `<option value="${value}" ${duration === String(value) ? 'selected' : ''}>Up to ${minutesLabel(value)}</option>`).join('')}</select></div>` : ''}
+      ${settings.length ? `<div><label for="setting-filter">Activity setting</label><select id="setting-filter"><option value="">Any setting</option>${settings.map(value => `<option value="${value}" ${setting === value ? 'selected' : ''}>${settingLabels[value]}</option>`).join('')}</select></div>` : ''}</div>
       <div class="library-actions"><button class="primary" type="submit">Search activities</button><button class="clear-button" type="button" id="clear-filters">Clear filters</button></div>
       <p id="filter-error" class="form-error" role="alert"></p>
     </form>
@@ -82,7 +90,9 @@ function libraryScreen() {
       <section class="library-results" aria-labelledby="results-heading"><div class="list-heading"><h2 id="results-heading" tabindex="-1" aria-describedby="result-count" data-result-title>Results</h2><p id="result-count" role="status" aria-live="polite">${activities.length} ${activities.length === 1 ? 'activity' : 'activities'}</p></div>
       ${category ? `<p class="applied-filter">Category: ${escape(categories.find(item => item.id === category).label)}</p>` : ''}
       ${material ? `<p class="applied-filter">Materials: ${escape(material === 'none' ? 'No materials listed' : material.slice('item:'.length))}</p>` : ''}
-      <ul class="content-list" aria-label="Activity results">${activities.map(activity => `<li class="library-result"><a class="content-row" href="#/library/activity/${encodeURIComponent(activity.id)}"><span>${escape(activity.title)}</span>${arrow}</a><p>${escape(suitabilityLabel(activity))}</p></li>`).join('')}</ul>
+      ${duration ? `<p class="applied-filter">Time available: Up to ${minutesLabel(Number(duration))}</p>` : ''}
+      ${setting ? `<p class="applied-filter">Setting: ${settingLabels[setting]}</p>` : ''}
+      <ul class="content-list" aria-label="Activity results">${activities.map(activity => `<li class="library-result"><a class="content-row" href="#/library/activity/${encodeURIComponent(activity.id)}"><span>${escape(activity.title)}</span>${arrow}</a><p>${escape(suitabilityLabel(activity))}</p>${activity.durationMinutes !== undefined ? `<p>${minutesLabel(activity.durationMinutes)}</p>` : ''}${activity.setting ? `<p>${settingLabels[activity.setting]}</p>` : ''}</li>`).join('')}</ul>
       ${activities.length ? '' : '<div class="empty-results"><h3>No activities match.</h3><p>Try another keyword, adjust the age, or clear the filters.</p></div>'}</section></div>`;
 }
 
@@ -139,7 +149,8 @@ function milestoneScreen(milestone, checkpoint) {
 function activityScreen(activity, milestone, checkpoint) {
   return `${milestone ? back(`#/milestone/${encodeURIComponent(milestone.id)}`, 'Back to behavior') + contextBar(checkpoint) : back('#/library', 'Back to activity library')}
     <div class="activity-heading"><p class="content-label">Activity</p>${heading(activity.title)}
-      ${milestone ? `<p>Linked to ${escape(milestone.sourceStatement)}</p>` : ''}<p>Listed for: ${escape(suitabilityLabel(activity))}</p></div>
+      ${milestone ? `<p>Linked to ${escape(milestone.sourceStatement)}</p>` : ''}<p>Listed for: ${escape(suitabilityLabel(activity))}</p>
+      <p>${activity.durationMinutes !== undefined ? `Duration: ${minutesLabel(activity.durationMinutes)}` : 'Duration not listed.'}</p><p>${activity.setting ? `Setting: ${settingLabels[activity.setting]}` : 'Setting not listed.'}</p></div>
     <section class="activity-section"><h2>Materials</h2>${activity.materials.length ? `<ul>${activity.materials.map(item => `<li>${escape(item)}</li>`).join('')}</ul>` : '<p>No materials listed.</p>'}</section>
     <section class="activity-section"><h2>Steps</h2><ol class="steps">${activity.instructions.map(item => `<li>${escape(item)}</li>`).join('')}</ol></section>
     <section class="safety"><h2>Safety notes</h2>${activity.safetyWarnings.length ? `<ul>${activity.safetyWarnings.map(warning => `<li>${escape(warning)}</li>`).join('')}</ul>` : '<p>No safety warnings listed in this fictional demo.</p>'}</section>
@@ -201,7 +212,8 @@ function render(focusResult = false) {
       return;
     }
     libraryFilters = { query: document.querySelector('#keyword').value, age: value, skill,
-      category: document.querySelector('#category-filter').value, material: document.querySelector('#material-filter').value };
+      category: document.querySelector('#category-filter').value, material: document.querySelector('#material-filter').value,
+      duration: document.querySelector('#duration-filter')?.value ?? '', setting: document.querySelector('#setting-filter')?.value ?? '' };
     render(true);
   }
   document.querySelector('#library-form')?.addEventListener('submit', event => { event.preventDefault(); applyLibraryFilters(); });

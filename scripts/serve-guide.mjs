@@ -10,6 +10,7 @@ const files = new Map([
   ['/src/checklist-selection.js', ['../src/checklist-selection.js', 'text/javascript']],
   ['/src/catalog.js', ['../src/catalog.js', 'text/javascript']],
   ['/fixtures/synthetic-catalogs.js', ['../fixtures/synthetic-catalogs.js', 'text/javascript']],
+  ['/fixtures/guide-catalog.js', ['../fixtures/guide-catalog.js', 'text/javascript']],
 ]);
 
 createServer(async (request, response) => {

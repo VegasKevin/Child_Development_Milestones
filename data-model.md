@@ -29,6 +29,12 @@ Fields are required unless marked optional. IDs are opaque, immutable strings. R
 | External resource | ID, title, provider, original URL and review date. A reviewed association identifies the milestone or activity on which the link is displayed. |
 | Milestone activity link | Milestone ID, activity ID, review date and editorial position. The pair is unique and the position is unique within the milestone. |
 
+The local schema-1 implementation represents optional activity duration as `durationMinutes`, a positive safe integer of whole minutes.
+Optional `setting` is exactly `indoor`, `outdoor` or `either`; `either` explicitly permits both locations.
+Omitting either field means its value is unknown, not zero minutes or a default location.
+A selected maximum-duration filter requires a known duration at or below that limit, and a selected location requires that location or an explicit `either` value.
+These are additive optional fields; earlier catalogs without them remain valid.
+
 **DM-003 — Publication invariants** (FR-004–006, FR-012–013, DEC-006, DEC-012–013)
 
 - Every active activity has at least one direct, reviewed link to an active CDC milestone. Skill overlap alone never creates a link. Validate each link against the activity suitability and reject dangling references or duplicate positions.

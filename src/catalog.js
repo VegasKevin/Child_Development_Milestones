@@ -79,6 +79,10 @@ export function validateCatalog(catalog, { launch = false, expectedCheckpointAge
         fields(item, ['title']);
         requireValue(date(item.reviewDate) && texts(item.materials) && texts(item.instructions, true) && texts(item.safetyWarnings),
           `Activity requires reviewed instructions, materials and safety warnings: ${item.id}`);
+        if (item.durationMinutes !== undefined) requireValue(whole(item.durationMinutes) && item.durationMinutes > 0,
+          `Activity duration must be positive whole minutes: ${item.id}`);
+        if (item.setting !== undefined) requireValue(['indoor', 'outdoor', 'either'].includes(item.setting),
+          `Activity setting must be indoor, outdoor or either: ${item.id}`);
         const suitability = item.suitability;
         requireValue(record(suitability), `Missing suitability: ${item.id}`);
         if (Object.hasOwn(suitability, 'checkpointIds')) {

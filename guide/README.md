@@ -27,13 +27,20 @@ The local demo does not change Sites or its invitation policy.
 
 Choose Search in the main navigation to browse activities without selecting an age or milestone first.
 Search matches every case-insensitive query word across titles, materials, instructions and explicitly assigned skill labels.
-Age, skill, developmental category and materials filters combine with the query, and results retain their catalog order without ranking or duplicated placements.
+Age, skill, developmental category, materials, time and setting filters combine with the query, and results retain their catalog order without ranking or duplicated placements.
 The age filter is separate from the temporary milestone-browsing age.
 Month-range suitability matches the entered age directly and includes both endpoints.
 Checkpoint suitability matches the applicable published checklist, so the six-month checkpoint also matches an age of seven months.
 Below two months or at 72 months and above, there is no applicable checkpoint for this filter; this does not activate a checklist preview.
 Skills use only explicit activity skill IDs; skill overlap through a linked milestone does not add a tag to an untagged activity.
-The synthetic catalog has no duration or setting fields, so the interface does not invent those filters.
+The local guide now uses `fixtures/guide-catalog.js`, a distinct fictional release with example duration and setting metadata.
+The earlier `releaseOne` and `releaseTwo` engineering fixtures remain unchanged.
+The guide fixture has a new release ID and incremented activity revisions; these values do not constitute reviewed developmental guidance.
+Time available offers inclusive maximums derived from the active catalog's known minute values, sorted numerically.
+Activity setting offers Indoors and Outdoors only when the catalog explicitly supports them; `either` supports both choices.
+Missing duration or setting does not match its selected filter, while Any duration and Any setting preserve those records.
+If every activity omits a field, that field's filter is not displayed.
+Activity rows and details show known values; detail views explicitly label unknown values as not listed.
 Materials remain searchable by keyword and also have a dedicated exact-membership filter.
 Material options are deduplicated from active activity material lists; No materials listed matches only an explicitly empty list.
 Category options come from categories attached to active activities through direct reviewed milestone links.
@@ -42,7 +49,7 @@ Skill overlap alone never creates a category placement or a skill assignment.
 Unused catalog categories are not offered as activity filters.
 Approximate-age discovery remains separate work.
 
-Submit Search activities to apply the entered query, age, category and materials, or toggle a skill tile to apply it together with those controls.
+Submit Search activities to apply the entered controls, or toggle a skill tile to apply it together with those controls.
 Clear filters resets all library controls and restores all active activities.
 Filters remain in memory when opening an activity and returning to the results.
 Query and filter values are not put in URLs, browser storage or network requests.
@@ -68,7 +75,8 @@ The new browser test first failed at the missing Developmental category control 
 The tests in `e2e/catalog-filters.spec.js` use a separately validated fictional release with five activities, two linked categories, two skills, shared materials, empty materials and activities without skill tags.
 One additional category has no activity placements and must not appear in the filter.
 The test replaces only the catalog module response in an isolated browser context; it exercises the normal Search entry point and application code.
-The test fixture is not exposed by the guide server, and the default two-activity demo catalog remains unchanged.
+The richer browser-test fixture is not exposed by the guide server.
+The later duration/setting slice switches the default two-activity demo to its own isolated release without modifying the earlier engineering releases.
 The fresh reviewer derived additional cases before reading the author tests and exercised them independently in Chrome.
 Those cases are retained as a regression for quoted/symbol-containing material labels, a literal material named none versus an empty list, top-level navigation, dashboard/library age independence, invalid-draft rejection and the test fixture's HTTP 404 at the runtime boundary.
 
@@ -79,12 +87,38 @@ Those cases are retained as a regression for quoted/symbol-containing material l
 | FR-005: only catalog-supplied filter options | Verified with synthetic data | Material options are deduplicated; unused categories are absent; actual editorial approval is not simulated or established. |
 | FR-005 / DM-003: combine filters without inferring missing metadata | Verified locally | Query, age, skill, category and materials intersect; an untagged activity does not acquire a skill through its milestone links. |
 | FR-014: usable filter controls | Partially verified | Keyboard selection, result focus, desktop/mobile screenshots, and 320-pixel layout with 200% text are checked; a complete accessibility audit and physical-device testing remain open. |
-| FR-005: duration and indoor/outdoor setting | Unimplemented and unverified | The current catalog has neither field; this slice does not establish behavior when those fields are introduced. |
+| FR-005: duration and indoor/outdoor setting | Completed in the following slice | See duration and setting evidence below. |
 | DM-003: approximate-age discovery | Unimplemented in the UI | The library accepts an exact whole-month age only. |
 
 Returning from an activity preserves every applied filter, and Clear filters restores the entire active catalog.
 Reload clears the temporary filter state.
 The passing local checks do not establish production catalog completeness or full FR-005 completion.
+
+## Duration and setting slice evidence
+
+The new end-to-end test first failed at the missing Time available control.
+An activation test also failed because malformed optional metadata was previously accepted.
+The catalog validator now rejects non-positive, fractional, unsafe, nonnumeric or null durations and unrecognized settings before activation.
+The activity fields and filter semantics are specified in [the data model](../data-model.md).
+The browser tests override the guide catalog response with validated fictional records containing indoor-only, outdoor-only, either-location and unknown values.
+The default local guide also exposes these controls using its new fictional release, so this behavior is available outside the test harness.
+An additional browser case exercises that ordinary demo without overriding its catalog.
+The fresh reviewer independently derived and exercised a one-minute duration, the maximum safe integer, either-only locations and records missing just one of the optional fields.
+Those cases are retained in the browser suite; the failed-activation unit check also verifies unchanged active activity content, not just the release ID.
+
+| Requirement or criterion | Status for this slice | Evidence or remaining limit |
+| --- | --- | --- |
+| FR-005: duration and indoor/outdoor filtering without a milestone | Verified locally | Time-boundary matches, both locations, either-location inclusion and known-only filtering are exercised from Search. |
+| FR-005 / DM-003: intersect existing filters and exclude unknown metadata | Verified locally | Time and setting intersect with keyword, age, skill, materials and category; omitted metadata remains available only when its filter is unrestricted. |
+| DM-002/003: valid, optional discovery metadata | Verified locally | Earlier catalogs remain valid; malformed fields prevent browser rendering and cannot replace the active catalog at the store boundary. |
+| DM-006: release identity and revision continuity | Verified locally | The separate guide fixture activates from releaseOne with a new release ID and incremented activity revisions; earlier fixtures remain unchanged. |
+| FR-006: show duration and location with activity essentials | Verified locally | Details expose known duration and either-location metadata, or explicit not-listed states. |
+| FR-014: keyboard and responsive controls | Partially verified | Desktop/mobile screenshots and keyboard operation at 320 pixels with 200% text are checked; physical-device and full accessibility testing remain open. |
+| DM-003: approximate-age discovery | Still unimplemented in the UI | The library accepts exact whole-month ages; an age interval is a separate slice. |
+
+Returning from details preserves time and setting alongside other applied filters, Clear filters resets them, and reload clears temporary choices.
+These synthetic checks do not establish real editorial approval, production content completeness or the remaining approximate-age behavior.
+
 Desktop Chrome uses 1440 by 1000 pixels; mobile Chrome emulation uses 390 by 844 pixels.
 An additional check uses a 320-pixel viewport with 200% root text size.
 Viewport emulation is not a physical-phone compatibility test or a complete accessibility audit.
