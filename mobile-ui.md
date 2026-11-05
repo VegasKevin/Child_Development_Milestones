@@ -23,9 +23,9 @@ Status — proposed mobile layouts for implementation. The supplied images below
 
 Use these owner-supplied examples when implementing the corresponding screen.
 
-- [Milestone dashboard](<milestone dashboard ui example.png>) — compact, bold category cards.
-- [Search](<mobile search ui example.jpg>) — prominent search field and colorful browse tiles.
-- [Activity results](<list of activites ui example.png>) — compact stacked rows with a clear title and useful metadata.
-- [Activity detail](<activity detail screen ui example.png>) — use the information hierarchy and prominent bottom action. Carry the lighter surfaces and bright accents from the other references into this screen.
+- [Milestone dashboard](<mobile-ui/milestone dashboard ui example.png>) — compact, bold category cards.
+- [Search](<mobile-ui/mobile search ui example.jpg>) — prominent search field and colorful browse tiles.
+- [Activity results](<mobile-ui/list of activites ui example.png>) — compact stacked rows with a clear title and useful metadata.
+- [Activity detail](<mobile-ui/activity detail screen ui example.png>) — use the information hierarchy and prominent bottom action. Carry the lighter surfaces and bright accents from the other references into this screen.
 
 References FR-001–011, FR-014, P1–P8 and DEC-001–014.

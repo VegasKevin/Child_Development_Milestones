@@ -67,5 +67,7 @@ Additional DM-002/003/006 tests cover malformed records, typed dangling referenc
 The second synthetic release withdraws the shared activity and leaves its favorite reference and dated notes intact while suppressing current instructions and links.
 This exercises the platform-neutral part of DM-A05; persistent offline-cache and browser rendering checks remain future work.
 
-Browser integration, persistent storage, backups, access authorization, library search/filtering and hosting evaluation are outside this first milestone.
-These checks exercise the closest runnable platform-neutral boundaries, not a browser end-to-end application.
+Persistent storage, backups, access authorization, library search/filtering and hosting evaluation are outside this first milestone.
+The checks above exercise the closest runnable platform-neutral boundaries.
+The separate [local guide browser suite](../guide/README.md) exercises the implemented age-to-activity flow with synthetic content using `npm.cmd run test:e2e`.
+It requires the locked Playwright development dependency and installed Google Chrome.

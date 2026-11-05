@@ -2,6 +2,13 @@
 
 Build a milestone-first child development guide. Invited adults browse CDC behaviors and human-reviewed activities. Child records stay on the device. Hosting remains open.
 
+## Run the local guide
+
+Run `npm.cmd run dev` on Windows, or `npm run dev` elsewhere, and open `http://127.0.0.1:4173`.
+This local demo uses fictional catalog content for temporary-age browsing, milestone details and linked activities.
+See [the guide instructions](guide/README.md) for scope and browser checks.
+Login and hosting evaluation are deferred; this demo does not select a deployment platform.
+
 ## First task
 
 Start with platform-neutral checkpoint selection, catalog validation, and stable-reference resolution using fictional data. Read **DM-002–004, DM-006 and DM-A01–04/A08** in the [data model](data-model.md). Produce a small runnable check and two synthetic catalog releases, with one activity withdrawn in the second release. Report the acceptance IDs exercised.
